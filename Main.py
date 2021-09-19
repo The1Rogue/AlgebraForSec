@@ -35,11 +35,28 @@ exercise_file.close()
 # Create answer JSON
 my_answers = {'exercises': []}
 
+#turns an input into a list, to use in operations
+#input s:string example: "-1f34"
+#output list ["neg",1,15,3,4]
+
+def parseString(s):
+    map = {"0":0,"1":1,"2":2,"3":3,"4":4,"5":5,"6":6,"7":7,"8":8,"9":9,"a":10,"b":11,"c":12,"d":13,"e":14,"f":15}
+    if s.startswith("-"):
+        result = ["neg"]
+        s = s[1:]
+    else:
+        result = ["pos"]
+
+    result += [map[i] for i in s]
+    return result
+
+
+
 # Loop over exercises and solve
 for exercise in my_exercises['exercises']:
     operation = exercise[0]                                        # get operation type
     params = exercise[1]                                           # get parameters
-    
+
     if operation == 'add':
         ### Do addition ###
         params['answer'] = '7'
