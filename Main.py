@@ -38,7 +38,6 @@ my_answers = {'exercises': []}
 #turns an input into a list, to use in operations
 #input s:string example: "-1f34"
 #output list ["neg",1,15,3,4]
-
 def parseString(s):
     map = {"0":0,"1":1,"2":2,"3":3,"4":4,"5":5,"6":6,"7":7,"8":8,"9":9,"a":10,"b":11,"c":12,"d":13,"e":14,"f":15}
     if s.startswith("-"):
@@ -49,6 +48,17 @@ def parseString(s):
 
     result += [map[i] for i in s]
     return result
+
+#inverse of parseString
+def toString(l):
+    map = {0: "0", 1: "1", 2: "2", 3: "3", 4: "4", 5: "5", 6: "6", 7: "7", 8: "8", 9: "9", 10: "a",11: "b",12: "c", 13: "d", 14: "e",15: "f"}
+
+    out = ""
+    if l[0] == "neg":
+        out = "-"
+
+    out += "".join([map[i] for i in l[1:]])
+    return out
 
 
 
