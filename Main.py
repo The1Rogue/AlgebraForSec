@@ -60,28 +60,56 @@ for exercise in my_exercises['exercises']:
     if operation == 'add':
         ### Do addition ###
         params['answer'] = '7'
+        
+    if operation == 'mod-add':
+        ### Do modular addition ###
+        params['answer'] = '1234'
     
     if operation == 'subtract':
         ### Do subtraction ###
         params['answer'] = '-0'
-
+        
+    if operation == 'mod-substract':
+        ### Do euclidean algorithm ###
+        params['answ-d'] = '1'
+        params['answ-a'] = '0'
+        params['answ-b'] = '0'
+        
     if operation == 'multiply':
         ### Do multiplication ###
         params['answer'] = '66'
         params['count-mul'] = '1'
         params['count-add'] = '2'
-    
-    if operation == 'mod-add':
-        ### Do modular addition ###
-        params['answer'] = '1234'
-    
-    if operation == 'euclid':
+
+    if operation == 'mod-multiply':
+        ### Do multiplication ###
+        params['answer'] = '66'
+        params['count-mul'] = '1'
+        params['count-add'] = '2'        
+
+    if operation == 'karatsuba':
         ### Do euclidean algorithm ###
         params['answ-d'] = '1'
         params['answ-a'] = '0'
         params['answ-b'] = '0'
-    
-    # etc.
+
+    if operation == 'reduce':
+        ### Do euclidean algorithm ###
+        params['answ-d'] = '1'
+        params['answ-a'] = '0'
+        params['answ-b'] = '0'            
+
+    if operation == 'euclid':
+        ### Do euclidean algorithm ###
+        params['answ-d'] = '1'
+        params['answ-a'] = '0'
+        params['answ-b'] = '0' 
+        
+    if operation == 'inverse':
+        ### Do euclidean algorithm ###
+        params['answ-d'] = '1'
+        params['answ-a'] = '0'
+        params['answ-b'] = '0'      
 
     # Save answer
     my_answers['exercises'].append({operation: params})
