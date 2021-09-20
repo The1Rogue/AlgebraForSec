@@ -36,14 +36,12 @@ exercise_file.close()
 my_answers = {'exercises': []}
 
 def padArray(x, y):
-  print("Begin Padding")
   if (len(x) != len(y)):
     for i in range(max(len(x), len(y))+1):
       if len(x) < i:
         x.insert(1, 0)
       if len(y) < i:
         y.insert(1, 0)
-  print(x, y)
   return x, y
 
 
@@ -71,6 +69,10 @@ def toString(l):
 
     out += "".join([map[i] for i in l[1:]])
     return out
+def substract(r, x, y):
+  answer = []
+  return answer
+
 
 def addition(r, x, y):
   answer = []
@@ -93,16 +95,12 @@ def addition(r, x, y):
     else:
       answer.insert(0, "pos")
   else:
-    for i in range(len(x)-1, 0 ,-1):
-      a = x[i]
-      b = y[i]
-      if a-b-carry < 0:
-        ins = a-b-carry+r
-        carry = 1
-      else:
-        ins = a-b-carry
-        carry = 0
-      answer.insert(0, ins)
+    x[0] = 'pos'
+    y[0] = 'pos'
+    if signx:
+      answer = substract(r, y, x)
+    elif signy:
+      answer = substract(r, x, y)
     
   return answer
 
