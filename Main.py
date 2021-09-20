@@ -13,7 +13,7 @@ ans_loc = base_location + 'my_answers'
 
 # How to create an exercise JSON file containing one addition exercise
 exercises = {'exercises' : []}                                     # initialize empty exercise list
-ex = {'add' : {'radix' : 10, 'x' : '3', 'y' : '4', 'answer' : ''}} # create add exercise
+ex = {'add' : {'radix' : 10, 'x' : '-150', 'y' : '-6', 'answer' : ''}} # create add exercise
 exercises['exercises'].append(ex)                                  # add exercise to list
 
 # Encode exercise list and print to file
@@ -34,6 +34,18 @@ exercise_file.close()
 
 # Create answer JSON
 my_answers = {'exercises': []}
+
+def padArray(x, y):
+  print("Begin Padding")
+  if (len(x) != len(y)):
+    for i in range(max(len(x), len(y))+1):
+      if len(x) < i:
+        x.insert(1, 0)
+      if len(y) < i:
+        y.insert(1, 0)
+  print(x, y)
+  return x, y
+
 
 #turns an input into a list, to use in operations
 #input s:string example: "-1f34"
@@ -60,16 +72,53 @@ def toString(l):
     out += "".join([map[i] for i in l[1:]])
     return out
 
-
+def addition(r, x, y):
+  answer = []
+  carry = 0
+  signx = True if x[0] == "neg" else False
+  signy = True if y[0] == "neg" else False
+  if (signx and signy) or (not(signx) and not(signy)):
+    for i in range(len(x)-1, 0 ,-1):
+      a = x[i]
+      b = y[i]
+      if a+b+carry < r:
+        ins = a+b+carry
+        carry = 0
+      else:
+        ins = a+b+carry-r
+        carry = 1
+      answer.insert(0, ins)
+    if signx:
+      answer.insert(0, "neg")
+    else:
+      answer.insert(0, "pos")
+  else:
+    for i in range(len(x)-1, 0 ,-1):
+      a = x[i]
+      b = y[i]
+      if a-b-carry < 0:
+        ins = a-b-carry+r
+        carry = 1
+      else:
+        ins = a-b-carry
+        carry = 0
+      answer.insert(0, ins)
+    
+  return answer
 
 # Loop over exercises and solve
 for exercise in my_exercises['exercises']:
     operation = exercise[0]                                        # get operation type
     params = exercise[1]                                           # get parameters
+    answer = []
+    radix = params['radix']
 
     if operation == 'add':
-        ### Do addition ###
-        params['answer'] = '7'
+      x, y = padArray(parseString(params["x"]), parseString(params["y"]))
+      ans = addition(radix, x, y)
+      print(ans)
+
+      # params['answer'] = toString(ans)
         
     if operation == 'mod-add':
         ### Do modular addition ###
