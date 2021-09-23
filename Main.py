@@ -1,4 +1,3 @@
-from pickle import TRUE
 import asn1tools as asn
 import json
 
@@ -10,6 +9,16 @@ ops_loc = base_location + 'operations.asn'
 exs_loc = base_location + 'my_exercises'
 ans_loc = base_location + 'my_answers'
 
+# global counter for the number of elementary additions/subtractions operations
+count_add = 0
+# global counter for the number of elementary multiplication operations
+count_mul = 0
+
+# global variables for result of Euclidean Algorithm
+answ_d = ''
+answ_a = ''
+answ_b = ''
+
 ###### Creating an exercise list file ######
 
 # Create a JSON file containing exercises
@@ -17,7 +26,7 @@ def createExerciseJSONfile():
     exercises = {'exercises' : []}                                      # initialize empty exercise list
 
     # example exercise
-    ex = {'subtract' : {'radix' : 10, 'x' : '-150', 'y' : '-6', 'answer' : ''}} # create add exercise
+    ex = {'add' : {'radix' : 10, 'x' : '-150', 'y' : '-6', 'answer' : ''}} # create add exercise
     exercises['exercises'].append(ex)                                   # add exercise to list
 
 
@@ -29,7 +38,7 @@ def createExerciseJSONfile():
     ex = {'add' : {'radix' : 2, 'x' : '1010100001110101001010001100101110111101101110000101011100111000000000010111010010110000001101011100', 'y' : '-1001100111111111001111101100000011100001111100100001001001011000101111111010011111010011010101000110', 'answer' : '111001110101111010100000101011011011110001100100010011011111010000011100110011011100111000010110'}}
     #exercises['exercises'].append(ex)
 
-    ex = {'subtract' : {'radix' : 2, 'x' : '-1010100001110101001010001100101110111101101110000101011100111000000000010111010010110000001101011100', 'y' : '-1001100111111111001111101100000011100001111100100001001001011000101111111010011111010011010101000110', 'answer' : '111001110101111010100000101011011011110001100100010011011111010000011100110011011100111000010110'}}
+    ex = {'subtract' : {'radix' : 2, 'x' : '1010100001110101001010001100101110111101101110000101011100111000000000010111010010110000001101011100', 'y' : '1001100111111111001111101100000011100001111100100001001001011000101111111010011111010011010101000110', 'answer' : '111001110101111010100000101011011011110001100100010011011111010000011100110011011100111000010110'}}
     #exercises['exercises'].append(ex)
 
     ex = {'subtract' : {'radix' : 2, 'x' : '1010100001110101001010001100101110111101101110000101011100111000000000010111010010110000001101011100', 'y' : '-1001100111111111001111101100000011100001111100100001001001011000101111111010011111010011010101000110', 'answer' : '10100001001110100011001111000110010011111101010100110100110010000110000010001110010000011100010100010'}}
@@ -107,21 +116,44 @@ def createExerciseJSONfile():
     ex = {'mod-subtract' : {'radix' : 16, 'x' : '93f76ca85dfdbf3f1790', 'y' : 'c2a72e55e1956be991ca', 'm' : '157f77a46f4c796bb774', 'answer' : '11cea53fca4dbf98ac22'}}
     #exercises['exercises'].append(ex)
 
-# Encode exercise list and print to file
-my_file = open(exs_loc, 'wb+')                                     # write to binary file
-my_file.write(json.dumps(exercises).encode())                      # add encoded exercise list
-my_file.close()
+    ex = {'mod-subtract' : {'radix' : 16, 'x' : 'c2a72e55e1956be991ca', 'y' : '93f76ca85dfdbf3f1790', 'm' : '157f77a46f4c796bb774', 'answer' : '3b0d264a4feb9d30b52'}}
+    #exercises['exercises'].append(ex)
+
+    ex = {'mod-multiply' : {'radix' : 16, 'x' : '93f76ca85dfdbf3f1790', 'y' : 'c2a72e55e1956be991ca', 'm' : '157f77a46f4c796bb774', 'answer' : 'dad2e63149941a790c4'}}
+    #exercises['exercises'].append(ex)
+
+    ex = {'euclid' : {'radix' : 16, 'x' : 'c1b715933d2d1dcb0e23', 'y' : '157f77a46f4c796bb774', 'answ-d' : '1', 'answ-a' : '8bb87443ec917fa3e87', 'answ-b' : '-4eb01402d28cbe3588c1'}}
+    #exercises['exercises'].append(ex)
+
+    ex = {'inverse' : {'radix' : 16, 'x' : 'c1b715933d2d1dcb0e23', 'm' : '157f77a46f4c796bb774', 'answer' : '8bb87443ec917fa3e87'}}
+    #exercises['exercises'].append(ex)
+
+    ex = {'euclid' : {'radix' : 16, 'x' : 'b22b5d17e57a41599185', 'y' : '157f77a46f4c796bb774', 'answ-d' : '19', 'answ-a' : '-74ba5fd6968445267', 'answ-b' : '3c769a8d705995e753'}}
+    #exercises['exercises'].append(ex)
+
+    ex = {'inverse' : {'radix' : 16, 'x' : 'b22b5d17e57a41599185', 'm' : '157f77a46f4c796bb774', 'answer' : 'ERROR - inverse does not exist'}}
+    #exercises['exercises'].append(ex)
+
+    # Encode exercise list and print to file
+    my_file = open(exs_loc, 'wb+')                                     # write to binary file
+    my_file.write(json.dumps(exercises).encode())                      # add encoded exercise list
+    my_file.close()
+    return
+
+# call this function to create exercises-file with exercises included inside it
+# or put it in comment to use existing exercises-file
+createExerciseJSONfile()
 
 ###### Using an exercise list file ######
 
 # Compile specification
 spec = asn.compile_files(ops_loc, codec = "jer")
 
-# Read exercise list 
+# Read exercise list
 exercise_file = open(exs_loc, 'rb')                                # open binary file
 file_data = exercise_file.read()                                   # read byte array
 my_exercises = spec.decode('Exercises', file_data)                 # decode after specification
-exercise_file.close()                                              
+exercise_file.close()
 
 # Create answer JSON
 my_answers = {'exercises': []}
@@ -160,47 +192,11 @@ def toString(l):
 
     out += "".join([map[i] for i in l[1:]])
     return out
-
 def substract(r, x, y):
   answer = []
-  signx = True if x[0] == "neg" else False
-  signy = True if y[0] == "neg" else False
-  if(signx and not(signy)):
-    x[0] = "pos"
-    answer = addition(r, x ,y)
-    answer[0] = 'neg'
-  elif (not(signx) and signy):
-    y[0] = 'pos'
-    answer = addition(r, x ,y)
-  elif (signx and signy):
-    for i in range(len(x)-1, 0 ,-1):
-      a = x[i]
-      b = y[i]
-      if b-a < 0: 
-        bnum = 1
-        borrow = False
-        while not(borrow):
-          if(not(isinstance(y[i-bnum], str))):
-            if(y[i-bnum] > 0):
-              y[i-bnum] -= 1
-              borrow = True
-              for j in range(bnum-1, 1, -1):
-                y[i-j] += r-1
-              b += r
-          else:
-            borrow = True
-          bnum += 1
-      ins = b-a
-      answer.insert(0, ins)
-  else:
-    for i in range(len((x)), 0 ,-1):
-      print('test')
   return answer
 
-#Checks which addition case is the current exercise and adds elements in the array accordingly.
-#Cases are: Both positive, both negative, both different sign
-#In the first and second case we can just add all the elements with the primary school method
-#In the third case we can use the subtract function i.e. -15+8 = 8-15
+
 def addition(r, x, y):
   answer = []
   carry = 0
@@ -212,7 +208,7 @@ def addition(r, x, y):
       b = y[i]
       if a+b+carry < r:
         ins = a+b+carry
-        carry = 0 
+        carry = 0
       else:
         ins = a+b+carry-r
         carry = 1
@@ -228,79 +224,134 @@ def addition(r, x, y):
       answer = substract(r, y, x)
     elif signy:
       answer = substract(r, x, y)
-    
+
   return answer
+
+def modAdd(radix, x, y, m):
+    answer = ''
+    return answer
+
+def modSubtract(radix, x, y, m):
+    answer = ''
+    return answer
+
+def multiply(radix, x, y):
+    answer = ''
+    #ToDo: calculate count_mul
+    #ToDo: calculate count_add
+    return answer
+
+def modMultiply(radix, x, y, m):
+    answer = ''
+    return answer
+
+def karatsuba(radix, x, y):
+    answer = ''
+    #ToDo: calculate count_mul
+    #ToDo: calculate count_add
+    return answer
+
+def reduce(radix, x, m):
+    answer = ''
+    return answer
+
+def euclid(radix, x, y):
+    #ToDo: calculate answ_d
+    #ToDo: calculate answ_a
+    #ToDo: calculate answ_b
+    return
+
+def inverse(radix, x, m):
+    answer = ''
+    return answer
+
 
 # Loop over exercises and solve
 for exercise in my_exercises['exercises']:
-    operation = exercise[0]                                        # get operation type
-    params = exercise[1]                                           # get parameters
-    answer = []
-    radix = params['radix']
+    operation = exercise[0]                # get operation type
+
+    # clear global counters before each operation
+    count_mul = 0
+    count_add = 0
+
+    # get parameters
+    params = exercise[1]
+    if 'x' in params:
+        x = params['x']
+    else:
+        x = ''
+    if 'y' in params:
+        y = params['y']
+    else:
+        y = ''
+    if 'm' in params:
+        m = params['m']
+    else:
+        m = ''
+    if 'radix' in params:
+        radix = params['radix']
+    else:
+        radix = ''
 
     if operation == 'add':
       x, y = padArray(parseString(params["x"]), parseString(params["y"]))
-      ans = toString(addition(radix, x, y))
+      ans = addition(radix, x, y)
       print(ans)
 
       # params['answer'] = toString(ans)
-        
-    if operation == 'mod-add':
+
+    elif operation == 'mod-add':
         ### Do modular addition ###
-        params['answer'] = '1234'
-    
-    if operation == 'subtract':
+        params['answer'] = modAdd(radix, x, y, m)
+
+    elif operation == 'subtract':
         ### Do subtraction ###
-      x, y = padArray(parseString(params["x"]), parseString(params["y"]))
-      # ans = toString(substract(radix, x, y))
-      ans = (substract(radix, x, y))
-      print(ans)
-        #params['answer'] = substract(radix, x, y)
+        params['answer'] = substract(radix, x, y)
 
     elif operation == 'mod-subtract':
         ### Do euclidean algorithm ###
-        params['answ-d'] = '1'
-        params['answ-a'] = '0'
-        params['answ-b'] = '0'
-        
-    if operation == 'multiply':
+        params['answer'] = modSubtract(radix, x, y, m)
+
+    elif operation == 'multiply':
         ### Do multiplication ###
-        params['answer'] = '66'
-        params['count-mul'] = '1'
-        params['count-add'] = '2'
+        params['answer'] = multiply(radix, x, y)
+        # add calculated counters to the result
+        params['count-mul'] = count_mul
+        params['count-add'] = count_add
 
-    if operation == 'mod-multiply':
+    elif operation == 'mod-multiply':
         ### Do multiplication ###
-        params['answer'] = '66'
-        params['count-mul'] = '1'
-        params['count-add'] = '2'        
+        params['answer'] = modMultiply(radix, x, y, m)
 
-    if operation == 'karatsuba':
-        ### Do euclidean algorithm ###
-        params['answ-d'] = '1'
-        params['answ-a'] = '0'
-        params['answ-b'] = '0'
+    elif operation == 'karatsuba':
+        ### Do karatsuba algorithm ###
+        params['answer'] = karatsuba(radix, x, y)
+        # add calculated counters to the result
+        params['count-mul'] = count_mul
+        params['count-add'] = count_add
 
-    if operation == 'reduce':
-        ### Do euclidean algorithm ###
-        params['answ-d'] = '1'
-        params['answ-a'] = '0'
-        params['answ-b'] = '0'            
+    elif operation == 'reduce':
+        ### Do reduce algorithm ###
+        params['answer'] = reduce(radix, x, m)
 
-    if operation == 'euclid':
+    elif operation == 'euclid':
         ### Do euclidean algorithm ###
-        params['answ-d'] = '1'
-        params['answ-a'] = '0'
-        params['answ-b'] = '0' 
-        
-    if operation == 'inverse':
-        ### Do euclidean algorithm ###
-        params['answ-d'] = '1'
-        params['answ-a'] = '0'
-        params['answ-b'] = '0'      
+        euclid(radix, x, y)
+        # add calculated answers to the result
+        params['answ-d'] = answ_d
+        params['answ-a'] = answ_a
+        params['answ-b'] = answ_b
+
+    elif operation == 'inverse':
+        ### Do inverse algorithm ###
+        params['answer'] = inverse(radix, x, m)
+
+    else:
+        print("Invalid input: not supported operation in [", radix, "] = ", operation)
 
     # Save answer
     my_answers['exercises'].append({operation: params})
+
 
 ###### Creating an answers list file ######
 
