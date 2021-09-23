@@ -16,7 +16,7 @@ def createExerciseJSONfile():
     exercises = {'exercises' : []}                                      # initialize empty exercise list
 
     # example exercise
-    ex = {'subtract' : {'radix' : 10, 'x' : '95', 'y' : '95', 'answer' : ''}} # create add exercise
+    ex = {'add' : {'radix' : 10, 'x' : '8', 'y' : '-18', 'answer' : ''}} # create add exercise
     exercises['exercises'].append(ex)                                   # add exercise to list
 
 
@@ -217,6 +217,8 @@ def addition(r, x, y):
         ins = a+b+carry-r
         carry = 1
       answer.insert(0, ins)
+    if carry > 0:
+      answer.insert(0, carry)
     if signx:
       answer.insert(0, "neg")
     else:
@@ -256,6 +258,8 @@ for exercise in my_exercises['exercises']:
     if operation == 'add':
       x, y = padArray(parseString(params["x"]), parseString(params["y"]))
       ans = (toString(removePadding(addition(radix, x, y))))
+      print(ans)
+
       params['answer'] = ans
         
     if operation == 'mod-add':
@@ -273,8 +277,6 @@ for exercise in my_exercises['exercises']:
       #Get answer from addition function and convert back to string and remove possible 0 padding
       ans = (toString(removePadding(addition(radix, x, y))))      
       #Put answer in output dictionary
-      print(ans)
-
       params['answer'] = ans
 
     elif operation == 'mod-subtract':
