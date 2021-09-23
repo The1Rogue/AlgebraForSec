@@ -1,5 +1,1 @@
-<<<<<<< Updated upstream
-{"exercises": [{"add": {"radix": 10, "x": "-150", "y": "-6", "answer": ""}}]}
-=======
-{"exercises": [{"subtract": {"radix": 10, "x": "-150", "y": "-6", "answer": ""}}]}
->>>>>>> Stashed changes
+{"exercises": [{"subtract": {"radix": 10, "x": "95", "y": "95", "answer": ""}}]}
