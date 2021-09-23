@@ -12,12 +12,6 @@ ans_loc = base_location + 'my_answers'
 
 ###### Creating an exercise list file ######
 
-<<<<<<< Updated upstream
-# How to create an exercise JSON file containing one addition exercise
-exercises = {'exercises' : []}                                     # initialize empty exercise list
-ex = {'add' : {'radix' : 10, 'x' : '-150', 'y' : '-6', 'answer' : ''}} # create add exercise
-exercises['exercises'].append(ex)                                  # add exercise to list
-=======
 # Create a JSON file containing exercises
 def createExerciseJSONfile():
     exercises = {'exercises' : []}                                      # initialize empty exercise list
@@ -112,7 +106,6 @@ def createExerciseJSONfile():
 
     ex = {'mod-subtract' : {'radix' : 16, 'x' : '93f76ca85dfdbf3f1790', 'y' : 'c2a72e55e1956be991ca', 'm' : '157f77a46f4c796bb774', 'answer' : '11cea53fca4dbf98ac22'}}
     #exercises['exercises'].append(ex)
->>>>>>> Stashed changes
 
 # Encode exercise list and print to file
 my_file = open(exs_loc, 'wb+')                                     # write to binary file
@@ -258,11 +251,6 @@ for exercise in my_exercises['exercises']:
     
     if operation == 'subtract':
         ### Do subtraction ###
-<<<<<<< Updated upstream
-        params['answer'] = '-0'
-        
-    if operation == 'mod-substract':
-=======
       x, y = padArray(parseString(params["x"]), parseString(params["y"]))
       # ans = toString(substract(radix, x, y))
       ans = (substract(radix, x, y))
@@ -270,7 +258,6 @@ for exercise in my_exercises['exercises']:
         #params['answer'] = substract(radix, x, y)
 
     elif operation == 'mod-subtract':
->>>>>>> Stashed changes
         ### Do euclidean algorithm ###
         params['answ-d'] = '1'
         params['answ-a'] = '0'
