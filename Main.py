@@ -275,14 +275,37 @@ def karatsuba(radix, x, y):
     return answer
 
 def reduce(radix, x, m):
-    answer = ''
-    return answer
+
+    while x > m:
+        diff = len(x) - len(m)
+        x = substract(x, m + [0 for _ in range(diff - 1)])
+    return x
+
+def QandR(radix, x, y):
+    q = 0
+    while x > y:
+        diff = len(x) - len(y)
+        x = substract(x,y + [0 for _ in range(diff - 1)])
+        q += diff-1
+    return q,x
 
 def euclid(radix, x, y):
-    #ToDo: calculate answ_d
-    #ToDo: calculate answ_a
-    #ToDo: calculate answ_b
-    return
+    axy = (1,0)
+    bxy = (0,1)
+
+    while True:
+        q, r = QandR(x,y)
+        if r == 0:
+            return x, axy[1], bxy[1] # gcd, a, b
+        y, x = x, r
+
+        axy = axy[1], axy[0] - q*axy[1]
+        bxy = bxy[1], bxy[0] - q * bxy[1]
+
+
+
+
+
 
 def inverse(radix, x, m):
     answer = ''
