@@ -16,7 +16,7 @@ def createExerciseJSONfile():
     exercises = {'exercises' : []}                                      # initialize empty exercise list
 
     # example exercise
-    ex = {'add' : {'radix' : 10, 'x' : '8', 'y' : '-18', 'answer' : ''}} # create add exercise
+    ex = {'subtract' : {'radix' : 10, 'x' : '8', 'y' : '-18', 'answer' : ''}} # create add exercise
     exercises['exercises'].append(ex)                                   # add exercise to list
 
 
@@ -195,6 +195,14 @@ def cmpMagnitude(x, y):
       return '<'
   return '='
 
+#Uses the fact that x-y = x+ -y. Thus it flips the sign of y and then uses the addition function to calculate the answer
+def subtract(r, x, y):
+  if y[0] == 'pos':
+    y[0] = 'neg'
+  else:
+    y[0] = 'pos'
+  return addition(r, x, y)
+
 #Checks which addition case is the current exercise and adds elements in the array accordingly.
 #Cases are: Both positive, both negative, both different sign
 #In the first and second case we can just add all the elements with the primary school method
@@ -269,13 +277,9 @@ for exercise in my_exercises['exercises']:
     if operation == 'subtract':
       # Get x and y from the parameters and add padding so x and y are same length
       x, y = padArray(parseString(params["x"]), parseString(params["y"]))
-      #Invert the sign of y so we can use addition function since x-y = x+ -y
-      if y[0] == 'pos':
-        y[0] = 'neg'
-      else:
-        y[0] = 'pos'
+    
       #Get answer from addition function and convert back to string and remove possible 0 padding
-      ans = (toString(removePadding(addition(radix, x, y))))      
+      ans = (toString(removePadding(subtract(radix, x, y))))      
       #Put answer in output dictionary
       params['answer'] = ans
 
