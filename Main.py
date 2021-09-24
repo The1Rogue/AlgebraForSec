@@ -215,40 +215,6 @@ def toString(l):
 
     out += "".join([map[i] for i in l[1:]])
     return out
-def substract(r, x, y):
-  answer = []
-  return answer
-
-
-def addition(r, x, y):
-  answer = []
-  carry = 0
-  signx = True if x[0] == "neg" else False
-  signy = True if y[0] == "neg" else False
-  if (signx and signy) or (not(signx) and not(signy)):
-    for i in range(len(x)-1, 0 ,-1):
-      a = x[i]
-      b = y[i]
-      if a+b+carry < r:
-        ins = a+b+carry
-        carry = 0
-      else:
-        ins = a+b+carry-r
-        carry = 1
-      answer.insert(0, ins)
-    if signx:
-      answer.insert(0, "neg")
-    else:
-      answer.insert(0, "pos")
-  else:
-    x[0] = 'pos'
-    y[0] = 'pos'
-    if signx:
-      answer = substract(r, y, x)
-    elif signy:
-      answer = substract(r, x, y)
-
-  return answer
 
 def modAdd(radix, x, y, m):
     answer = ''

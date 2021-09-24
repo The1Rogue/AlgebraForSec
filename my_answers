@@ -1,1 +1,1 @@
-{"exercises": [{"subtract": {"radix": 10, "x": "8", "y": "-18", "answer": "26"}}]}
+{"exercises": [{"add": {"radix": 10, "x": "-150", "y": "-6", "answer": "-156"}}]}
