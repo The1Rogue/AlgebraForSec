@@ -26,7 +26,7 @@ def createExerciseJSONfile():
     exercises = {'exercises' : []}                                      # initialize empty exercise list
 
     # example exercise
-    ex = {'add' : {'radix' : 10, 'x' : '-150', 'y' : '-6', 'answer' : ''}} # create add exercise
+    ex = {'add' : {'radix' : 2, 'x' : '-110', 'y' : '-1', 'answer' : ''}} # create add exercise
     exercises['exercises'].append(ex)                                   # add exercise to list
 
 
@@ -244,14 +244,14 @@ def reduce(radix, x, m):
 
     while x > m:
         diff = len(x) - len(m)
-        x = substract(x, m + [0 for _ in range(diff - 1)])
+        x = subtract(x, m + [0 for _ in range(diff - 1)])
     return x
 
 def QandR(radix, x, y):
     q = 0
     while x > y:
         diff = len(x) - len(y)
-        x = substract(x,y + [0 for _ in range(diff - 1)])
+        x = subtract(x,y + [0 for _ in range(diff - 1)])
         q += diff-1
     return q,x
 
