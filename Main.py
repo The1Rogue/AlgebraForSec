@@ -158,14 +158,37 @@ exercise_file.close()
 # Create answer JSON
 my_answers = {'exercises': []}
 
+#Add 0 padding to the front of x or y array so they are the same size and same order digits line up
 def padArray(x, y):
+  #If they already have the same length skip the function
   if (len(x) != len(y)):
+    #For the amount of digits in the greater array loop and add 0's to the smaller array
     for i in range(max(len(x), len(y))+1):
       if len(x) < i:
         x.insert(1, 0)
       if len(y) < i:
         y.insert(1, 0)
   return x, y
+
+#Remove any padding leftover from calculating with padding assuming no array with only sign and zeroes is entered
+def removePadding(x):
+  i=1
+  #Loop to remove all padding
+  while(True):
+    #If a 0 array is entered break immediately and return same array
+    if i >= len(x):
+      break
+    #If x is a leading zero remove it and reset index counter to previous position otherwise it skips over one indez
+    if x[i] == 0:
+      x.pop(i)
+      i -= 1
+    #Break if a non-zero element is found since
+    elif x[i] > 0:
+      break
+    i +=1
+  if(len(x) == 1):
+    return ["pos", 0]    
+  return x
 
 
 #turns an input into a list, to use in operations
@@ -264,11 +287,82 @@ def euclid(radix, x, y):
 def inverse(radix, x, m):
     answer = ''
     return answer
+#Assume two padded arrays enter and compare size without looking at sign
+#Returns > if x>y, < if x<y and = if x=y
+def cmpMagnitude(x, y):
+  for i in range(1, len(x)):
+    if x[i] > y[i]:
+      return '>'
+    if x[i] < y[i]:
+      return '<'
+  return '='
 
+#Uses the fact that x-y = x+ -y. Thus it flips the sign of y and then uses the addition function to calculate the answer
+def subtract(r, x, y):
+  if y[0] == 'pos':
+    y[0] = 'neg'
+  else:
+    y[0] = 'pos'
+  return addition(r, x, y)
+
+#Checks which addition case is the current exercise and adds elements in the array accordingly.
+#Cases are: Both positive, both negative, both different sign
+#In the first and second case we can just add all the elements with the primary school method
+#In the third case we check which numbers magnitude is bigger and subtract the smaller from the larger and keep the larger's sign
+def addition(r, x, y):
+  answer = []
+  carry = 0
+  signx = True if x[0] == "neg" else False
+  signy = True if y[0] == "neg" else False
+
+  #Same sign addition
+  if (signx and signy) or (not(signx) and not(signy)):
+    for i in range(len(x)-1, 0 ,-1):
+      a = x[i]
+      b = y[i]
+      if a+b+carry < r:
+        ins = a+b+carry
+        carry = 0 
+      else:
+        ins = a+b+carry-r
+        carry = 1
+      answer.insert(0, ins)
+    if carry > 0:
+      answer.insert(0, carry)
+    if signx:
+      answer.insert(0, "neg")
+    else:
+      answer.insert(0, "pos")
+  else:
+    #Different signs addition
+    cmp = cmpMagnitude(x, y)
+    for i in range(len(x)-1, 0, -1):
+      if cmp == '>':
+        a = x[i]
+        b = y[i]
+      elif cmp == '<':
+        a=y[i]
+        b=x[i]
+      else: 
+        return ['pos', 0]
+      if a-b-carry < 0:
+        ins = r+(a-b-carry)
+        carry = 1
+      else:
+        ins = a-b-carry
+        carry = 0
+      answer.insert(0, ins)
+    if cmp =='>':
+      answer.insert(0, x[0])
+    else:
+      answer.insert(0, y[0])
+  return answer
 
 # Loop over exercises and solve
 for exercise in my_exercises['exercises']:
-    operation = exercise[0]                # get operation type
+    operation = exercise[0]                                        # get operation type
+    params = exercise[1]                                           # get parameters
+    answer = []
 
     # clear global counters before each operation
     count_mul = 0
@@ -295,18 +389,23 @@ for exercise in my_exercises['exercises']:
 
     if operation == 'add':
       x, y = padArray(parseString(params["x"]), parseString(params["y"]))
-      ans = addition(radix, x, y)
+      ans = (toString(removePadding(addition(radix, x, y))))
       print(ans)
 
-      # params['answer'] = toString(ans)
-
-    elif operation == 'mod-add':
+      params['answer'] = ans
+        
+    if operation == 'mod-add':
         ### Do modular addition ###
-        params['answer'] = modAdd(radix, x, y, m)
-
-    elif operation == 'subtract':
-        ### Do subtraction ###
-        params['answer'] = substract(radix, x, y)
+        params['answer'] = '1234'
+    
+    if operation == 'subtract':
+      # Get x and y from the parameters and add padding so x and y are same length
+      x, y = padArray(parseString(params["x"]), parseString(params["y"]))
+    
+      #Get answer from addition function and convert back to string and remove possible 0 padding
+      ans = (toString(removePadding(subtract(radix, x, y))))      
+      #Put answer in output dictionary
+      params['answer'] = ans
 
     elif operation == 'mod-subtract':
         ### Do euclidean algorithm ###
