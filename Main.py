@@ -242,16 +242,16 @@ def karatsuba(radix, x, y):
 
 def reduce(radix, x, m):
 
-    while x > m:
+    while len(x) > len(m) or (len(x) == len(m) and cmpMagnitude(x, m)):
         diff = len(x) - len(m)
-        x = substract(x, m + [0 for _ in range(diff - 1)])
+        x = subtract(radix, x, m + [0 for _ in range(diff - 1)])
     return x
 
 def QandR(radix, x, y):
     q = 0
-    while x > y:
+    while len(x) > len(y) or (len(x) == len(y) and cmpMagnitude(x, y)):
         diff = len(x) - len(y)
-        x = substract(x,y + [0 for _ in range(diff - 1)])
+        x = subtract(radix, x, y + [0 for _ in range(diff - 1)])
         q += diff-1
     return q,x
 
@@ -260,22 +260,19 @@ def euclid(radix, x, y):
     bxy = (0,1)
 
     while True:
-        q, r = QandR(x,y)
+        q, r = QandR(radix, x, y)
         if r == 0:
             return x, axy[1], bxy[1] # gcd, a, b
         y, x = x, r
 
-        axy = axy[1], axy[0] - q*axy[1]
+        axy = axy[1], axy[0] - q * axy[1]
         bxy = bxy[1], bxy[0] - q * bxy[1]
-
-
-
-
 
 
 def inverse(radix, x, m):
     answer = ''
     return answer
+
 #Assume two padded arrays enter and compare size without looking at sign
 #Returns > if x>y, < if x<y and = if x=y
 def cmpMagnitude(x, y):
@@ -383,11 +380,11 @@ for exercise in my_exercises['exercises']:
 
       params['answer'] = ans
         
-    if operation == 'mod-add':
+    elif operation == 'mod-add':
         ### Do modular addition ###
         params['answer'] = '1234'
     
-    if operation == 'subtract':
+    elif operation == 'subtract':
       # Get x and y from the parameters and add padding so x and y are same length
       x, y = padArray(parseString(params["x"]), parseString(params["y"]))
     
