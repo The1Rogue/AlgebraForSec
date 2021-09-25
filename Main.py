@@ -331,7 +331,11 @@ def CmpHexStr(x, y):
 
 
 #Change the sign of 'y' and calls preAddition funciton.
+#Input:  radix: integer number between 2 and 16
+#        x, y:  Strings for the two values to be subtracted (x+y)
+#Output: result of the function as String (x+y)
 def preSubtract(r, x, y):
+    # change the sign of 'y' and make addition (x + (-y))
     if y[0] == "-":
         # remove "-"
         y = y[1:]
@@ -343,6 +347,9 @@ def preSubtract(r, x, y):
 #Calls addition funciton, but before that
 #turn 'x' and 'y' into lists and add padding so they have same length.
 #Finally provide answer converted back to string with removed possible 0 padding.
+#Input:  radix: integer number between 2 and 16
+#        x, y:  Strings for the two values to be added (x+y)
+#Output: result of the function as String (x+y)
 def preAddition(r, x, y):
     #Get x and y and add padding so x and y are same length
     x, y = padArray(parseString(x), parseString(y))
@@ -568,11 +575,87 @@ def modMultiply(radix, x, y, m):
     return toString(mult)
 
 
+#This function multiplies 2 values using Karatsuba method
+# for faster multiplication.
+#Input:  radix: integer number between 2 and 16
+#        x, y:  Strings for the two values to be multiplied (x*y)
+#Output: result of the function as String (x*y)
 def karatsuba(radix, x, y):
-    answer = ''
-    #ToDo: calculate count_mul
-    #ToDo: calculate count_add
+    if len(x) == 0 or len(y) == 0:
+        return "invalid input data"
+    answer = ""
+
+    add_neg = 0
+    if x[0] == "-":
+        x = x[1:]
+        add_neg = 1
+
+    if y[0] == "-":
+        y = y[1:]
+        if add_neg == 1:
+            add_neg = 0
+        else:
+            add_neg = 1
+
+    if (len(x) == 1) or (len(y) == 1):
+        answer = multiply(radix, x, y)
+    else:
+        m = max(len(x), len(y))
+        split = m // 2
+
+        # split x in 2 parts
+        x_length = len(x) // 2
+        x_mod    = len(x) % 2
+        if x_mod == 1:
+            x_length = x_length + 1
+        x_hi = x[:x_length]
+        x_lo = x[x_length:]
+
+        # split y in 2 parts
+        y_length = len(y) // 2
+        y_mod    = len(y) % 2
+        if y_mod == 1:
+            y_length = y_length + 1
+        y_hi = y[:y_length]
+        y_lo = y[y_length:]
+
+        # Xhi * Yhi
+        step1_hi = karatsuba(radix, x_hi, y_hi)
+
+        # Xlo * Ylo
+        step2_lo = karatsuba(radix, x_lo, y_lo)
+
+        # Xhi + Xlo
+        step3_x = preAddition(radix, x_hi, x_lo)
+        # Yhi + Ylo
+        step3_y = preAddition(radix, y_hi, y_lo)
+        # (Xhi + Xlo) * (Yhi + Ylo)
+        step3_xy = multiply(radix, step3_x, step3_y)
+
+        # (Xhi + Xlo) * (Yhi + Ylo) - Xhi * Yhi
+        step4_xy_hi = preSubtract(radix, step3_xy, step1_hi)
+        # found Xhi * Ylo + Xlo * Yhi = (Xhi + Xlo) * (Yhi + Ylo) - Xhi * Yhi - Xlo * Ylo
+        step4_xy_hi_lo = preSubtract(radix, step4_xy_hi, step2_lo)
+
+        # b^(m/2)
+        mult_m_2 = 10 ** split
+        # (Xhi * Ylo + Xlo * Yhi) * b^(m/2)
+        step5_xy_hi_lo_m_2 = multiply(radix, step4_xy_hi_lo, str(mult_m_2))
+
+        # b^m
+        mult_m = mult_m_2 ** 2
+        # Xhi * Yhi * b^m
+        step6_hi_m = multiply(radix, step1_hi, str(mult_m))
+
+        # Xhi * Yhi * b^m + (Xhi * Ylo + Xlo * Yhi) * b^(m/2)
+        step7_add = preAddition(radix, step6_hi_m, step5_xy_hi_lo_m_2)
+        # Xhi * Yhi * b^m + (Xhi * Ylo + Xlo * Yhi) * b^(m/2) + Xlo * Ylo
+        answer = preAddition(radix, step7_add, step2_lo)
+
+        if add_neg == 1:
+            answer = "-" + answer
     return answer
+
 
 
 def reduce(radix, x, m):
