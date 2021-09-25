@@ -126,7 +126,7 @@ def createExerciseJSONfile():
     #exercises['exercises'].append(ex)
 
     ex = {'inverse' : {'radix' : 16, 'x' : 'c1b715933d2d1dcb0e23', 'm' : '157f77a46f4c796bb774', 'answer' : '8bb87443ec917fa3e87'}}
-    #exercises['exercises'].append(ex)
+    exercises['exercises'].append(ex)
 
     ex = {'euclid' : {'radix' : 16, 'x' : 'b22b5d17e57a41599185', 'y' : '157f77a46f4c796bb774', 'answ-d' : '19', 'answ-a' : '-74ba5fd6968445267', 'answ-b' : '3c769a8d705995e753'}}
     #exercises['exercises'].append(ex)
@@ -392,6 +392,7 @@ def addition(r, x, y):
         #Different signs addition
         cmp = cmpMagnitude(x, y)
         for i in range(len(x)-1, 0, -1):
+            print(i)
             if cmp == '>':
                 a = x[i]
                 b = y[i]
@@ -605,7 +606,10 @@ def euclid(radix, x, y):
 
 
 def inverse(radix, x, m):
-    answer = ''
+    answer = 'ERROR - inverse does not exist'
+    d, a, b = euclid(radix, parseString(x), parseString(m))
+    if d == 1:
+      answer = a
     return answer
 
 
