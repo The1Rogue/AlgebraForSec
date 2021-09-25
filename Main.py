@@ -111,13 +111,13 @@ def createExerciseJSONfile():
     #exercises['exercises'].append(ex)
 
     ex = {'mod-add' : {'radix' : 16, 'x' : '93f76ca85dfdbf3f1790', 'y' : 'c2a72e55e1956be991ca', 'm' : '157f77a46f4c796bb774', 'answer' : '1426985bba180dd8e98e'}}
-    exercises['exercises'].append(ex)
+    #exercises['exercises'].append(ex)
 
     ex = {'mod-subtract' : {'radix' : 16, 'x' : '93f76ca85dfdbf3f1790', 'y' : 'c2a72e55e1956be991ca', 'm' : '157f77a46f4c796bb774', 'answer' : '11cea53fca4dbf98ac22'}}
-    exercises['exercises'].append(ex)
+    #exercises['exercises'].append(ex)
 
     ex = {'mod-subtract' : {'radix' : 16, 'x' : 'c2a72e55e1956be991ca', 'y' : '93f76ca85dfdbf3f1790', 'm' : '157f77a46f4c796bb774', 'answer' : '3b0d264a4feb9d30b52'}}
-    exercises['exercises'].append(ex)
+    #exercises['exercises'].append(ex)
 
     ex = {'mod-multiply' : {'radix' : 16, 'x' : '93f76ca85dfdbf3f1790', 'y' : 'c2a72e55e1956be991ca', 'm' : '157f77a46f4c796bb774', 'answer' : 'dad2e63149941a790c4'}}
     #exercises['exercises'].append(ex)
@@ -463,16 +463,109 @@ def modSubtract(radix, x, y, m):
     return z_output
 
 
-def multiply(radix, x, y):
-    answer = ''
+def subUntil(num, divisor):
+    count = 0
+    while num >= divisor:
+        num -= divisor
+        count += 1
+    return num, count
+
+def multiply(params):
+    # Parse parameters
+    x = parseString(params["x"])
+    y = parseString(params["y"])
+    radix = params["radix"]
+    n_add, n_mult = 0, 0
+
+    # Determine the sign (neg * pos and vice versa --> neg, pos otherwise)
+    sign = ["pos", "neg"][((x[0] == "neg") + (y[0] == "neg")) % 2]
+
+    # Use the smallest number as base to multiply with
+    if len(x) >= len(y):
+        top, btm = x, y
+    else:
+        top, btm = y, x
+
+    ans = []
+    carry = 0
+
+    # Mult all numbers
+    # Loop over every bottom number
+    for i in range(len(btm)):
+        if i == len(btm)-1:
+            break
+
+        # Add padding for indexes > 0
+        ans.append([0 for _ in range(i)])
+        num_btm = btm[-(i+1)]
+
+        # Loop over every top number
+        for j in range(len(top)):
+            if j == len(top)-1:
+                break
+            num_top = top[-(j+1)]
+
+            # Multiply the bottom with the top number and add the carry
+            mult = num_btm * num_top + carry
+            n_add += 1
+            n_mult += 1
+
+            # Calculate new carry and reduce answer
+            mult, carry = subUntil(mult, radix)
+            n_add += carry
+
+            # Add to answer array
+            ans[i].append(mult)
+
+        # If there's a carry bigger than the number length, add it on its own
+        if carry != 0:
+            ans[i].append(carry)
+        carry = 0
+    
+    # Add the multiplied numbers
+    final = []
+    carry = 0
+    for i in range(len(ans[-1])):
+        summed = carry
+
+        # Add all numbers in the same row level
+        for row in range(len(ans)):
+            if len(ans[row]) > i:
+                if ans[row][i] > 0:
+                    summed += ans[row][i]
+                    n_add += 1
+
+        # Calculate new carry, reduce answer and add it to final array
+        summed, carry = subUntil(summed, radix)
+        n_add += carry
+        final.append(summed)
+
+    # If there's a carry bigger than the answer length, add it on its own
+    if carry != 0:
+        final.append(carry)
+
+    # Add sign and flip the number
+    final.append(sign)
+    final = final[::-1]
+    
+    return final, n_add, n_mult
     #ToDo: calculate count_mul
     #ToDo: calculate count_add
-    return answer
 
 
 def modMultiply(radix, x, y, m):
-    answer = ''
-    return answer
+    # reduce function doesn't work
+    return 0
+
+    # Reduce x and y
+    x = reduce(radix, parseString(x), m)
+    y = reduce(radix, parseString(y), m)
+
+    # Multiply the numbers, then reduce mod m
+    mult, n_add, n_mult = multiply({x: x, y: y, radix: radix})
+    mult = reduce(mult, m)
+
+    return toString(mult)
 
 
 def karatsuba(radix, x, y):
@@ -568,7 +661,8 @@ for exercise in my_exercises['exercises']:
 
     elif operation == 'multiply':
         ### Do multiplication ###
-        params['answer'] = multiply(radix, x, y)
+        ans, n_add, n_mult = multiply(params)
+        params['answer'] = toString(ans)
         # add calculated counters to the result
         params['count-mul'] = count_mul
         params['count-add'] = count_add
