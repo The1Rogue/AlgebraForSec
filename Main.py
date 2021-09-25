@@ -579,14 +579,16 @@ def karatsuba(radix, x, y):
 def reduce(radix, x, m):
     while len(x) > len(m) or (len(x) == len(m) and cmpMagnitude(x, m)):
         diff = len(x) - len(m)
-        x = subtract(radix, x, m + [0 for _ in range(diff - 1)])
+        m.insert(1,0)
+        x = removePadding(subtract(radix, x, m + [0 for _ in range(diff - 1)]))
     return x
 
 def QandR(radix, x, y):
     q = 0
     while len(x) > len(y) or (len(x) == len(y) and cmpMagnitude(x, y)):
         diff = len(x) - len(y)
-        x = subtract(radix, x, y + [0 for _ in range(diff - 1)])
+        y.insert(1,0)
+        x = removePadding(subtract(radix, x, y + [0 for _ in range(diff - 1)]))
         q += diff-1
     return q,x
 
