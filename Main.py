@@ -392,7 +392,6 @@ def addition(r, x, y):
         #Different signs addition
         cmp = cmpMagnitude(x, y)
         for i in range(len(x)-1, 0, -1):
-            print(i)
             if cmp == '>':
                 a = x[i]
                 b = y[i]
@@ -598,7 +597,7 @@ def euclid(radix, x, y):
 
     while True:
         q, r = QandR(radix, x, y)
-        if r == 0:
+        if r[1] == 0:
             return x, axy[1], bxy[1] # gcd, a, b
         y, x = x, r
 
@@ -608,11 +607,13 @@ def euclid(radix, x, y):
 
 
 def inverse(radix, x, m):
-    answer = 'ERROR - inverse does not exist'
-    d, a, b = euclid(radix, parseString(x), parseString(m))
-    if d == 1:
-      answer = a
-    return answer
+  answer = 'ERROR - inverse does not exist'
+  d, a, b = euclid(radix, parseString(x), parseString(m))
+  print(d)
+  if d != 1:
+    answer = a
+    print(a)
+  return answer
 
 
 # Loop over exercises and solve
