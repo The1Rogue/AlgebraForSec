@@ -26,8 +26,8 @@ def createExerciseJSONfile():
     exercises = {'exercises' : []}                                      # initialize empty exercise list
 
     # example exercise
-    ex = {'add' : {'radix' : 10, 'x' : '-150', 'y' : '-6', 'answer' : ''}} # create add exercise
-    exercises['exercises'].append(ex)                                   # add exercise to list
+    ex = {'add' : {'radix' : 10, 'x' : '-150', 'y' : '-6', 'answer' : '-156'}} # create add exercise
+    #exercises['exercises'].append(ex)                                   # add exercise to list
 
 
     # given exercises
@@ -111,13 +111,13 @@ def createExerciseJSONfile():
     #exercises['exercises'].append(ex)
 
     ex = {'mod-add' : {'radix' : 16, 'x' : '93f76ca85dfdbf3f1790', 'y' : 'c2a72e55e1956be991ca', 'm' : '157f77a46f4c796bb774', 'answer' : '1426985bba180dd8e98e'}}
-    #exercises['exercises'].append(ex)
+    exercises['exercises'].append(ex)
 
     ex = {'mod-subtract' : {'radix' : 16, 'x' : '93f76ca85dfdbf3f1790', 'y' : 'c2a72e55e1956be991ca', 'm' : '157f77a46f4c796bb774', 'answer' : '11cea53fca4dbf98ac22'}}
-    #exercises['exercises'].append(ex)
+    exercises['exercises'].append(ex)
 
     ex = {'mod-subtract' : {'radix' : 16, 'x' : 'c2a72e55e1956be991ca', 'y' : '93f76ca85dfdbf3f1790', 'm' : '157f77a46f4c796bb774', 'answer' : '3b0d264a4feb9d30b52'}}
-    #exercises['exercises'].append(ex)
+    exercises['exercises'].append(ex)
 
     ex = {'mod-multiply' : {'radix' : 16, 'x' : '93f76ca85dfdbf3f1790', 'y' : 'c2a72e55e1956be991ca', 'm' : '157f77a46f4c796bb774', 'answer' : 'dad2e63149941a790c4'}}
     #exercises['exercises'].append(ex)
@@ -160,35 +160,36 @@ my_answers = {'exercises': []}
 
 #Add 0 padding to the front of x or y array so they are the same size and same order digits line up
 def padArray(x, y):
-  #If they already have the same length skip the function
-  if (len(x) != len(y)):
-    #For the amount of digits in the greater array loop and add 0's to the smaller array
-    for i in range(max(len(x), len(y))+1):
-      if len(x) < i:
-        x.insert(1, 0)
-      if len(y) < i:
-        y.insert(1, 0)
-  return x, y
+    #If they already have the same length skip the function
+    if (len(x) != len(y)):
+        #For the amount of digits in the greater array loop and add 0's to the smaller array
+        for i in range(max(len(x), len(y))+1):
+            if len(x) < i:
+                x.insert(1, 0)
+            if len(y) < i:
+                y.insert(1, 0)
+    return x, y
+
 
 #Remove any padding leftover from calculating with padding assuming no array with only sign and zeroes is entered
 def removePadding(x):
-  i=1
-  #Loop to remove all padding
-  while(True):
-    #If a 0 array is entered break immediately and return same array
-    if i >= len(x):
-      break
-    #If x is a leading zero remove it and reset index counter to previous position otherwise it skips over one indez
-    if x[i] == 0:
-      x.pop(i)
-      i -= 1
-    #Break if a non-zero element is found since
-    elif x[i] > 0:
-      break
-    i +=1
-  if(len(x) == 1):
-    return ["pos", 0]    
-  return x
+    i=1
+    #Loop to remove all padding
+    while(True):
+        #If a 0 array is entered break immediately and return same array
+        if i >= len(x):
+            break
+        #If x is a leading zero remove it and reset index counter to previous position otherwise it skips over one indez
+        if x[i] == 0:
+            x.pop(i)
+            i -= 1
+        #Break if a non-zero element is found since
+        elif x[i] > 0:
+            break
+        i +=1
+    if(len(x) == 1):
+        return ["pos", 0]
+    return x
 
 
 #turns an input into a list, to use in operations
@@ -216,13 +217,251 @@ def toString(l):
     out += "".join([map[i] for i in l[1:]])
     return out
 
-def modAdd(radix, x, y, m):
-    answer = ''
+#Assume two padded arrays enter and compare size without looking at sign
+#Returns > if x>y, < if x<y and = if x=y
+def cmpMagnitude(x, y):
+    for i in range(1, len(x)):
+        if x[i] > y[i]:
+            return '>'
+        if x[i] < y[i]:
+            return '<'
+    return '='
+
+# function to reverse a string
+def reverse(x):
+    return x[::-1]
+
+# function to convert hexadecimal symbol to decimal numerical integer value
+def hexStrToDecDig(x):
+    if   x == "a" or x == "A":
+        result = 10
+    elif x == "b" or x == "B":
+        result = 11
+    elif x == "c" or x == "C":
+        result = 12
+    elif x == "d" or x == "D":
+        result = 13
+    elif x == "e" or x == "E":
+        result = 14
+    elif x == "f" or x == "F":
+        result = 15
+    elif x == "0" or x == "1" or x == "2" or x == "3" or x == "4" or x == "5" or x == "6" or x == "7" or x == "8" or x == "9":
+        result = int(x)
+    else:
+        print ("invalid input symbol '" + x + "' provided. '1' is used instead.")
+        result = 1
+    return result
+
+# function to convert decimal numerical integer value to hexadecimal symbol
+def decDigToHexStr(x):
+    if x < 10:
+        result = str(x)
+    elif x == 10:
+        result = "a"
+    elif x == 11:
+        result = "b"
+    elif x == 12:
+        result = "c"
+    elif x == 13:
+        result = "d"
+    elif x == 14:
+        result = "e"
+    elif x == 15:
+        result = "f"
+    else:
+        print ("invalid number '" + x + "' provided. '1' is used instead.")
+        result = 1
+    return result
+
+
+# compare two numbers
+# return ( x "<", "=" or ">" y )
+def CmpNumbers(x, y):
+    if (x < y):
+        return "<"
+    elif (x > y):
+        return ">"
+    else:
+        return "="
+
+# compare two strings with hexadecimal symbols
+# return  ( x "<", "=" or ">" y )
+def CmpHexStr(x, y):
+    negative = 0
+
+    if (x[0] == "-"): # x is negative
+        if (y[0] == "-"): # y is negative
+            # both x and y are negative
+            x = x[1:]
+            y = y[1:]
+            negative = 1
+        else: # y[0] != "-", so y is non negative
+            return "<"
+    else: # x[0] != "-", so x is non negative
+        if (y[0] == "-"): # y is negative
+            return ">"
+        #else both x and y are non negative
+
+    n_x  = len(x)
+    n_y  = len(y)
+
+    # compare length
+    if (n_x < n_y):
+        cmpresult = "<"
+    elif (n_x > n_y):
+        cmpresult = ">"
+    else: # x and y have equal length
+        # compare symbols starting from the hiest one
+        for i in range(n_x):
+            cmpresult = CmpNumbers (hexStrToDecDig(x[i]), hexStrToDecDig(y[i]))
+            # don't continue comparition when the first difference is found
+            if cmpresult != "=":
+                break
+
+    if (negative == 1):
+        # both x and y are negative => reverse comparison result
+        # example: (5 < 10) => (-5 > -10)
+        if (cmpresult == "<"):
+            cmpresult = ">"
+        elif (cmpresult == ">"):
+            cmpresult = "<"
+        #else keep cmpresult "="
+
+    return cmpresult
+
+
+#Change the sign of 'y' and calls preAddition funciton.
+def preSubtract(r, x, y):
+    if y[0] == "-":
+        # remove "-"
+        y = y[1:]
+    else:
+        # add"-"
+        y = "-" + y
+    return preAddition(r, x, y)
+
+#Calls addition funciton, but before that
+#turn 'x' and 'y' into lists and add padding so they have same length.
+#Finally provide answer converted back to string with removed possible 0 padding.
+def preAddition(r, x, y):
+    #Get x and y and add padding so x and y are same length
+    x, y = padArray(parseString(x), parseString(y))
+    #Get answer from addition function and convert back to string and remove possible 0 padding
+    return (toString(removePadding(addition(r, x, y))))
+
+#Uses the fact that x-y = x+ -y. Thus it flips the sign of y and then uses the addition function to calculate the answer
+def subtract(r, x, y):
+    if y[0] == 'pos':
+        y[0] = 'neg'
+    else:
+        y[0] = 'pos'
+    return addition(r, x, y)
+
+#Checks which addition case is the current exercise and adds elements in the array accordingly.
+#Cases are: Both positive, both negative, both different sign
+#In the first and second case we can just add all the elements with the primary school method
+#In the third case we check which numbers magnitude is bigger and subtract the smaller from the larger and keep the larger's sign
+def addition(r, x, y):
+    global count_add
+    answer = []
+    carry = 0
+    signx = True if x[0] == "neg" else False
+    signy = True if y[0] == "neg" else False
+
+    #Same sign addition
+    if (signx and signy) or (not(signx) and not(signy)):
+        for i in range(len(x)-1, 0 ,-1):
+            a = x[i]
+            b = y[i]
+            if a+b+carry < r:
+                ins = a+b+carry
+                carry = 0
+            else:
+                ins = a+b+carry-r
+                carry = 1
+            #count simple addition operations
+            count_add = count_add + 1
+            answer.insert(0, ins)
+        if carry > 0:
+            answer.insert(0, carry)
+        if signx:
+            answer.insert(0, "neg")
+        else:
+            answer.insert(0, "pos")
+    else:
+        #Different signs addition
+        cmp = cmpMagnitude(x, y)
+        for i in range(len(x)-1, 0, -1):
+            if cmp == '>':
+                a = x[i]
+                b = y[i]
+            elif cmp == '<':
+                a=y[i]
+                b=x[i]
+            else:
+                return ['pos', 0]
+            if a-b-carry < 0:
+                ins = r+(a-b-carry)
+                carry = 1
+            else:
+                ins = a-b-carry
+                carry = 0
+            #count simple addition operations
+            count_add = count_add + 1
+            answer.insert(0, ins)
+        if cmp =='>':
+            answer.insert(0, x[0])
+        else:
+            answer.insert(0, y[0])
     return answer
 
+
+#This function calculates module addition.
+#Input:  radix: integer number between 2 and 16
+#        x, y:  Strings for the two values to be added (x+y)
+#        m:     String for module value
+#Output: result of the function as String ((x+y) mod m)
+def modAdd(radix, x, y, m):
+    if len(x) == 0 or len(y) == 0 or len(m) == 0:
+        return "invalid input data"
+
+    # make integer addition
+    z_output = preAddition(radix, x, y) # z = x + y
+
+    while CmpHexStr(z_output, m) != "<": # z >= m
+        # make integer subtraction
+        # to subtract module 'm' from this result
+        z_output = preSubtract(radix, z_output, m) # z = (x + y) - m
+
+    return z_output
+
+
+#This function calculates module subtraction.
+#Input:  radix: integer number between 2 and 16
+#        x, y:  Strings for the two values to be subtracted (x-y)
+#        m:     String for module value
+#Output: result of the function as String ((x-y) mod m)
 def modSubtract(radix, x, y, m):
-    answer = ''
-    return answer
+    if len(x) == 0 or len(y) == 0 or len(m) == 0:
+        return "invalid input data"
+
+    # make integer subtraction
+    z_output = preSubtract(radix, x, y) # z = x - y
+
+    if z_output[0] == "-": # sign '-'
+        # make integer addition to add module 'm' to this result
+        while z_output[0] == "-":
+            z_output = preAddition(radix, z_output, m) # z = z + m
+
+    else: # sign '+'
+        # make integer subtraction
+        # to subtract module 'm' from this result
+        # like in mod-addition functionality
+        while CmpHexStr(z_output, m) != "<": # z >= m
+            z_output = preSubtract(radix, z_output, m) # z = z - m
+
+    return z_output
+
 
 def multiply(radix, x, y):
     answer = ''
@@ -230,9 +469,11 @@ def multiply(radix, x, y):
     #ToDo: calculate count_add
     return answer
 
+
 def modMultiply(radix, x, y, m):
     answer = ''
     return answer
+
 
 def karatsuba(radix, x, y):
     answer = ''
@@ -240,8 +481,8 @@ def karatsuba(radix, x, y):
     #ToDo: calculate count_add
     return answer
 
-def reduce(radix, x, m):
 
+def reduce(radix, x, m):
     while len(x) > len(m) or (len(x) == len(m) and cmpMagnitude(x, m)):
         diff = len(x) - len(m)
         x = subtract(radix, x, m + [0 for _ in range(diff - 1)])
@@ -267,88 +508,17 @@ def euclid(radix, x, y):
 
         axy = axy[1], axy[0] - q * axy[1]
         bxy = bxy[1], bxy[0] - q * bxy[1]
+    return
 
 
 def inverse(radix, x, m):
     answer = ''
     return answer
 
-#Assume two padded arrays enter and compare size without looking at sign
-#Returns > if x>y, < if x<y and = if x=y
-def cmpMagnitude(x, y):
-  for i in range(1, len(x)):
-    if x[i] > y[i]:
-      return '>'
-    if x[i] < y[i]:
-      return '<'
-  return '='
-
-#Uses the fact that x-y = x+ -y. Thus it flips the sign of y and then uses the addition function to calculate the answer
-def subtract(r, x, y):
-  if y[0] == 'pos':
-    y[0] = 'neg'
-  else:
-    y[0] = 'pos'
-  return addition(r, x, y)
-
-#Checks which addition case is the current exercise and adds elements in the array accordingly.
-#Cases are: Both positive, both negative, both different sign
-#In the first and second case we can just add all the elements with the primary school method
-#In the third case we check which numbers magnitude is bigger and subtract the smaller from the larger and keep the larger's sign
-def addition(r, x, y):
-  answer = []
-  carry = 0
-  signx = True if x[0] == "neg" else False
-  signy = True if y[0] == "neg" else False
-
-  #Same sign addition
-  if (signx and signy) or (not(signx) and not(signy)):
-    for i in range(len(x)-1, 0 ,-1):
-      a = x[i]
-      b = y[i]
-      if a+b+carry < r:
-        ins = a+b+carry
-        carry = 0 
-      else:
-        ins = a+b+carry-r
-        carry = 1
-      answer.insert(0, ins)
-    if carry > 0:
-      answer.insert(0, carry)
-    if signx:
-      answer.insert(0, "neg")
-    else:
-      answer.insert(0, "pos")
-  else:
-    #Different signs addition
-    cmp = cmpMagnitude(x, y)
-    for i in range(len(x)-1, 0, -1):
-      if cmp == '>':
-        a = x[i]
-        b = y[i]
-      elif cmp == '<':
-        a=y[i]
-        b=x[i]
-      else: 
-        return ['pos', 0]
-      if a-b-carry < 0:
-        ins = r+(a-b-carry)
-        carry = 1
-      else:
-        ins = a-b-carry
-        carry = 0
-      answer.insert(0, ins)
-    if cmp =='>':
-      answer.insert(0, x[0])
-    else:
-      answer.insert(0, y[0])
-  return answer
 
 # Loop over exercises and solve
 for exercise in my_exercises['exercises']:
-    operation = exercise[0]                                        # get operation type
-    params = exercise[1]                                           # get parameters
-    answer = []
+    operation = exercise[0]                # get operation type
 
     # clear global counters before each operation
     count_mul = 0
@@ -374,27 +544,26 @@ for exercise in my_exercises['exercises']:
         radix = ''
 
     if operation == 'add':
-      x, y = padArray(parseString(params["x"]), parseString(params["y"]))
-      ans = (toString(removePadding(addition(radix, x, y))))
-      print(ans)
+        x, y = padArray(parseString(params["x"]), parseString(params["y"]))
+        ans = (toString(removePadding(addition(radix, x, y))))
+        #print(ans)
+        params['answer'] = ans
 
-      params['answer'] = ans
-        
     elif operation == 'mod-add':
         ### Do modular addition ###
-        params['answer'] = '1234'
-    
+        params['answer'] = modAdd(radix, x, y, m)
+
     elif operation == 'subtract':
-      # Get x and y from the parameters and add padding so x and y are same length
-      x, y = padArray(parseString(params["x"]), parseString(params["y"]))
-    
-      #Get answer from addition function and convert back to string and remove possible 0 padding
-      ans = (toString(removePadding(subtract(radix, x, y))))      
-      #Put answer in output dictionary
-      params['answer'] = ans
+        # Get x and y from the parameters and add padding so x and y are same length
+        x, y = padArray(parseString(params["x"]), parseString(params["y"]))
+
+        #Get answer from addition function and convert back to string and remove possible 0 padding
+        ans = (toString(removePadding(subtract(radix, x, y))))
+        #Put answer in output dictionary
+        params['answer'] = ans
 
     elif operation == 'mod-subtract':
-        ### Do euclidean algorithm ###
+        ### Do mod-subtract algorithm ###
         params['answer'] = modSubtract(radix, x, y, m)
 
     elif operation == 'multiply':
@@ -444,4 +613,3 @@ for exercise in my_exercises['exercises']:
 my_file = open(ans_loc, 'wb+')                                       # write to binary file
 my_file.write(json.dumps(my_answers).encode())                       # add encoded exercise list
 my_file.close()
-
