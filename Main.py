@@ -142,7 +142,7 @@ def createExerciseJSONfile():
 
 # call this function to create exercises-file with exercises included inside it
 # or put it in comment to use existing exercises-file
-createExerciseJSONfile()
+#createExerciseJSONfile()
 
 ###### Using an exercise list file ######
 
@@ -665,6 +665,8 @@ def reduce(radix, x, m):
         x = removePadding(subtract(radix, x, m + [0 for _ in range(diff - 1)]))
     return x
 
+#Returns q and r of the formula x = qy + r
+#So it is division with remainder
 def divWithRemainder(radix, x, y):
   q= ['pos', 0]
   while cmpMagnitude(x, y) != '<':
@@ -697,10 +699,13 @@ def euclid(radix, x, y):
         bxy = bxy[1], bxy[0] - q * bxy[1]
     return
 
-#Calculate inverse of 
+#Calculate inverse of x mod m
 def inverse(radix, x, m):
   answer = 'ERROR - inverse does not exist'
   a, b = parseString(x), parseString(m)
+  if(a[0] == 'neg' or b[0] == 'neg'):
+    return answer
+  
   ans1 = ['pos', 0]
   ans2 = ['pos', 1]
   while cmpMagnitude(a,['pos', 0]) == '>':
@@ -719,11 +724,13 @@ def inverse(radix, x, m):
     answer = ans1
   return answer
 
+total_count = 0
+correct_count = 0
 
 # Loop over exercises and solve
 for exercise in my_exercises['exercises']:
     operation = exercise[0]                # get operation type
-
+    total_count +=1
     # clear global counters before each operation
     count_mul = 0
     count_add = 0
@@ -746,7 +753,7 @@ for exercise in my_exercises['exercises']:
         radix = params['radix']
     else:
         radix = ''
-
+    correctAns = params['answer']
     if operation == 'add':
         x, y = padArray(parseString(params["x"]), parseString(params["y"]))
         ans = (toString(removePadding(addition(radix, x, y))))
@@ -816,10 +823,14 @@ for exercise in my_exercises['exercises']:
 
     # Save answer
     my_answers['exercises'].append({operation: params})
-
+    try:
+      if params['answer'] == correctAns:
+        correct_count += 1
+    except:
+      pass
 
 ###### Creating an answers list file ######
-
+print(total_count, correct_count)
 # Save exercises with answers to file
 my_file = open(ans_loc, 'wb+')                                       # write to binary file
 my_file.write(json.dumps(my_answers).encode())                       # add encoded exercise list
