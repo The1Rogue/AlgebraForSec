@@ -472,6 +472,29 @@ def modSubtract(radix, x, y, m):
     return z_output
 
 
+#Calls multiplication funciton, but before that
+#turn 'x' and 'y' into lists
+#Finally provide answer converted back to string with removed possible 0 padding.
+#Input:  radix: integer number between 2 and 16
+#        x, y:  Strings for the two values to be multiplied (x*y)
+#Output: result of the function as String (x*y)
+def preMultiply(radix, x, y):
+    global count_add
+    global count_mul
+
+    #Get x and y
+    x, y = parseString(x), parseString(y)
+
+    answer, n_add, n_mult = multiply(radix, x, y)
+
+    # add current numbers of additions and multiplications to their global counters
+    count_add = count_add + n_add
+    count_mul = count_mul + n_mult
+
+    #Get answer from multiplication function and convert back to string and remove possible 0 padding
+    return (toString(removePadding(answer)))
+
+
 def subUntil(num, divisor):
     count = 0
     while num >= divisor:
@@ -598,7 +621,7 @@ def karatsuba(radix, x, y):
             add_neg = 1
 
     if (len(x) == 1) or (len(y) == 1):
-        answer = multiply(radix, x, y)
+        answer = preMultiply(radix, x, y)
     else:
         m = max(len(x), len(y))
         split = m // 2
@@ -630,7 +653,7 @@ def karatsuba(radix, x, y):
         # Yhi + Ylo
         step3_y = preAddition(radix, y_hi, y_lo)
         # (Xhi + Xlo) * (Yhi + Ylo)
-        step3_xy = multiply(radix, step3_x, step3_y)
+        step3_xy = preMultiply(radix, step3_x, step3_y)
 
         # (Xhi + Xlo) * (Yhi + Ylo) - Xhi * Yhi
         step4_xy_hi = preSubtract(radix, step3_xy, step1_hi)
@@ -640,12 +663,12 @@ def karatsuba(radix, x, y):
         # b^(m/2)
         mult_m_2 = 10 ** split
         # (Xhi * Ylo + Xlo * Yhi) * b^(m/2)
-        step5_xy_hi_lo_m_2 = multiply(radix, step4_xy_hi_lo, str(mult_m_2))
+        step5_xy_hi_lo_m_2 = preMultiply(radix, step4_xy_hi_lo, str(mult_m_2))
 
         # b^m
         mult_m = mult_m_2 ** 2
         # Xhi * Yhi * b^m
-        step6_hi_m = multiply(radix, step1_hi, str(mult_m))
+        step6_hi_m = preMultiply(radix, step1_hi, str(mult_m))
 
         # Xhi * Yhi * b^m + (Xhi * Ylo + Xlo * Yhi) * b^(m/2)
         step7_add = preAddition(radix, step6_hi_m, step5_xy_hi_lo_m_2)
