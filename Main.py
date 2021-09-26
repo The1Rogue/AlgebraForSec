@@ -688,9 +688,10 @@ def reduce(radix, x, m):
         return subtract(radix, m, x)
 
 
+    m2 = m.copy()
     m.insert(1, 0)
 
-    while len(x) > len(m)-1 or (len(x) == len(m)-1 and cmpMagnitude(x, m)):
+    while len(x) > len(m)-1 or (len(x) == len(m)-1 and cmpMagnitude(x, m2) != "<"):
         diff = len(x) - len(m)
         x = removePadding(subtract(radix, x, m + [0 for _ in range(diff)]))
     return x
@@ -707,27 +708,39 @@ def divWithRemainder(radix, x, y):
     
 
 def QandR(radix, x, y):
-    q = 0
+
+    if x[0] == "neg":
+        x[0] = "pos"
+        q, x = QandR(radix, x, y)
+        return q, subtract(radix, y, x)
+
+
+    q = ["pos", 0]
+    y2 = y.copy()
     y.insert(1, 0)
-    while len(x) > len(y)-1 or (len(x) == len(y)-1 and cmpMagnitude(x, y)):
+    while len(x) > len(y)-1 or (len(x) == len(y)-1 and cmpMagnitude(x, y2) != "<"):
+        if x[0] == "neg": exit()
         diff = len(x) - len(y)
         x = removePadding(subtract(radix, x, y + [0 for _ in range(diff)]))
-        q += diff-1
-    return q,x
+        if diff >= 0:
+            q = addition(radix, *padArray(q, ["pos",1] + [0] * diff))
+
+    return q, x
 
 def euclid(radix, x, y):
-    axy = (1,0)
-    bxy = (0,1)
+    axy = (["pos",1],["pos",0])
+    bxy = (["pos",0],["pos",1])
 
     while True:
-        q, r = QandR(radix, x, y)
-        if r[1] == 0:
-            return x, axy[1], bxy[1] # gcd, a, b
-        y, x = x, r
+        q, r = QandR(radix, x.copy(), y.copy())
 
-        axy = axy[1], axy[0] - q * axy[1]
-        bxy = bxy[1], bxy[0] - q * bxy[1]
-    return
+        if r[1] == 0:
+            return y, axy[0], bxy[0] # gcd, a, b
+        x = y
+        y = r
+
+        axy = axy[1], subtract(radix, *padArray(axy[0], multiply(radix, q, axy[1])[0]))
+        bxy = bxy[1], subtract(radix, *padArray(bxy[0], multiply(radix, q, bxy[1])[0]))
 
 #Calculate inverse of x mod m
 def inverse(radix, x, m):
@@ -840,12 +853,15 @@ for exercise in my_exercises['exercises']:
         params['answer'] = toString(reduce(radix, parseString(x), parseString(m)))
 
     elif operation == 'euclid':
+
         ### Do euclidean algorithm ###
         answ_d, answ_a, answ_b = euclid(radix, parseString(x), parseString(y))
+
         # add calculated answers to the result
-        params['answ-d'] = answ_d
-        params['answ-a'] = answ_a
-        params['answ-b'] = answ_b
+        params['answ-d'] = toString(answ_d)
+        params['answ-a'] = toString(answ_a)
+        params['answ-b'] = toString(answ_b)
+
 
     elif operation == 'inverse':
         ### Do inverse algorithm ###
