@@ -584,16 +584,15 @@ def multiply(radix, x, y):
 
 
 def modMultiply(radix, x, y, m):
-    # reduce function doesn't work
-    return 0
-
+    m = parseString(m)
     # Reduce x and y
     x = reduce(radix, parseString(x), m)
     y = reduce(radix, parseString(y), m)
 
+
     # Multiply the numbers, then reduce mod m
-    mult, n_add, n_mult = multiply({x: x, y: y, radix: radix})
-    mult = reduce(mult, m)
+    mult, n_add, n_mult = multiply(radix, x, y)
+    mult = removePadding(reduce(radix, mult, removePadding(m)))
 
     return toString(mult)
 
@@ -682,10 +681,18 @@ def karatsuba(radix, x, y):
 
 
 def reduce(radix, x, m):
-    while len(x) > len(m) or (len(x) == len(m) and cmpMagnitude(x, m)):
+
+    if x[0] == "neg":
+        x[0] = "pos"
+        x = reduce(radix, x, m)
+        return subtract(radix, m, x)
+
+
+    m.insert(1, 0)
+
+    while len(x) > len(m)-1 or (len(x) == len(m)-1 and cmpMagnitude(x, m)):
         diff = len(x) - len(m)
-        m.insert(1,0)
-        x = removePadding(subtract(radix, x, m + [0 for _ in range(diff - 1)]))
+        x = removePadding(subtract(radix, x, m + [0 for _ in range(diff)]))
     return x
 
 #Returns q and r of the formula x = qy + r
@@ -701,10 +708,10 @@ def divWithRemainder(radix, x, y):
 
 def QandR(radix, x, y):
     q = 0
-    while len(x) > len(y) or (len(x) == len(y) and cmpMagnitude(x, y)):
+    y.insert(1, 0)
+    while len(x) > len(y)-1 or (len(x) == len(y)-1 and cmpMagnitude(x, y)):
         diff = len(x) - len(y)
-        y.insert(1,0)
-        x = removePadding(subtract(radix, x, y + [0 for _ in range(diff - 1)]))
+        x = removePadding(subtract(radix, x, y + [0 for _ in range(diff)]))
         q += diff-1
     return q,x
 
@@ -753,7 +760,7 @@ correct_count = 0
 # Loop over exercises and solve
 for exercise in my_exercises['exercises']:
     operation = exercise[0]                # get operation type
-    total_count +=1
+    total_count += 1
     # clear global counters before each operation
     count_mul = 0
     count_add = 0
@@ -776,7 +783,13 @@ for exercise in my_exercises['exercises']:
         radix = params['radix']
     else:
         radix = ''
-    correctAns = params['answer']
+
+    try:
+        correctAns = params['answer']
+    except KeyError:
+        correctAns = ""
+        correct_count += 1
+
     if operation == 'add':
         x, y = padArray(parseString(params["x"]), parseString(params["y"]))
         ans = (toString(removePadding(addition(radix, x, y))))
@@ -824,11 +837,11 @@ for exercise in my_exercises['exercises']:
 
     elif operation == 'reduce':
         ### Do reduce algorithm ###
-        params['answer'] = reduce(radix, x, m)
+        params['answer'] = toString(reduce(radix, parseString(x), parseString(m)))
 
     elif operation == 'euclid':
         ### Do euclidean algorithm ###
-        euclid(radix, x, y)
+        answ_d, answ_a, answ_b = euclid(radix, parseString(x), parseString(y))
         # add calculated answers to the result
         params['answ-d'] = answ_d
         params['answ-a'] = answ_a
@@ -847,8 +860,10 @@ for exercise in my_exercises['exercises']:
     # Save answer
     my_answers['exercises'].append({operation: params})
     try:
-      if params['answer'] == correctAns:
-        correct_count += 1
+        if params['answer'] == correctAns:
+            correct_count += 1
+        else:
+            print(operation,params, correctAns)
     except:
       pass
 
