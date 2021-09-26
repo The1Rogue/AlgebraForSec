@@ -6,8 +6,8 @@ import json
 # set file names
 base_location = './'
 ops_loc = base_location + 'operations.asn'
-exs_loc = base_location + 'my_exercises'
-ans_loc = base_location + 'my_answers'
+exs_loc = base_location + input('Please type your filename:')
+ans_loc = base_location + 'answers'
 
 # global counter for the number of elementary additions/subtractions operations
 count_add = 0
@@ -26,8 +26,8 @@ def createExerciseJSONfile():
     exercises = {'exercises' : []}                                      # initialize empty exercise list
 
     # example exercise
-    ex = {'add' : {'radix' : 10, 'x' : '-150', 'y' : '-6', 'answer' : '-156'}} # create add exercise
-    #exercises['exercises'].append(ex)                                   # add exercise to list
+    ex = {'inverse' : {'radix' : 10, 'x' : '154', 'm' : '392', 'answer' : '135'}} # create add exercise
+    exercises['exercises'].append(ex)                                   # add exercise to list
 
 
     # given exercises
@@ -126,13 +126,13 @@ def createExerciseJSONfile():
     #exercises['exercises'].append(ex)
 
     ex = {'inverse' : {'radix' : 16, 'x' : 'c1b715933d2d1dcb0e23', 'm' : '157f77a46f4c796bb774', 'answer' : '8bb87443ec917fa3e87'}}
-    exercises['exercises'].append(ex)
+    #exercises['exercises'].append(ex)
 
     ex = {'euclid' : {'radix' : 16, 'x' : 'b22b5d17e57a41599185', 'y' : '157f77a46f4c796bb774', 'answ-d' : '19', 'answ-a' : '-74ba5fd6968445267', 'answ-b' : '3c769a8d705995e753'}}
     #exercises['exercises'].append(ex)
 
     ex = {'inverse' : {'radix' : 16, 'x' : 'b22b5d17e57a41599185', 'm' : '157f77a46f4c796bb774', 'answer' : 'ERROR - inverse does not exist'}}
-    #exercises['exercises'].append(ex)
+    exercises['exercises'].append(ex)
 
     # Encode exercise list and print to file
     my_file = open(exs_loc, 'wb+')                                     # write to binary file
@@ -220,12 +220,13 @@ def toString(l):
 #Assume two padded arrays enter and compare size without looking at sign
 #Returns > if x>y, < if x<y and = if x=y
 def cmpMagnitude(x, y):
-    for i in range(1, len(x)):
-        if x[i] > y[i]:
-            return '>'
-        if x[i] < y[i]:
-            return '<'
-    return '='
+  x,y=padArray(x,y)
+  for i in range(1, len(x)):
+      if x[i] > y[i]:
+          return '>'
+      if x[i] < y[i]:
+          return '<'
+  return '='
 
 # function to reverse a string
 def reverse(x):
@@ -358,11 +359,12 @@ def preAddition(r, x, y):
 
 #Uses the fact that x-y = x+ -y. Thus it flips the sign of y and then uses the addition function to calculate the answer
 def subtract(r, x, y):
-    if y[0] == 'pos':
-        y[0] = 'neg'
-    else:
-        y[0] = 'pos'
-    return addition(r, x, y)
+  y_1 = y[:]
+  if y_1[0] == 'pos':
+      y_1[0] = 'neg'
+  else:
+      y_1[0] = 'pos'
+  return addition(r, x, y_1)
 
 #Checks which addition case is the current exercise and adds elements in the array accordingly.
 #Cases are: Both positive, both negative, both different sign
@@ -477,11 +479,9 @@ def subUntil(num, divisor):
         count += 1
     return num, count
 
-def multiply(params):
+def multiply(radix, x, y):
     # Parse parameters
-    x = parseString(params["x"])
-    y = parseString(params["y"])
-    radix = params["radix"]
+   
     n_add, n_mult = 0, 0
 
     # Determine the sign (neg * pos and vice versa --> neg, pos otherwise)
@@ -665,6 +665,15 @@ def reduce(radix, x, m):
         x = removePadding(subtract(radix, x, m + [0 for _ in range(diff - 1)]))
     return x
 
+def divWithRemainder(radix, x, y):
+  q= ['pos', 0]
+  while cmpMagnitude(x, y) != '<':
+    x = subtract(radix, x, y)
+    a, b = padArray(q, ['pos', 1])
+    q = addition(radix, a, b)
+  return q,x
+    
+
 def QandR(radix, x, y):
     q = 0
     while len(x) > len(y) or (len(x) == len(y) and cmpMagnitude(x, y)):
@@ -688,14 +697,26 @@ def euclid(radix, x, y):
         bxy = bxy[1], bxy[0] - q * bxy[1]
     return
 
-
+#Calculate inverse of 
 def inverse(radix, x, m):
   answer = 'ERROR - inverse does not exist'
-  d, a, b = euclid(radix, parseString(x), parseString(m))
-  print(d)
-  if d != 1:
-    answer = a
-    print(a)
+  a, b = parseString(x), parseString(m)
+  ans1 = ['pos', 0]
+  ans2 = ['pos', 1]
+  while cmpMagnitude(a,['pos', 0]) == '>':
+    q, r = divWithRemainder(radix, b, a)
+    b = a
+    a = r
+    
+    res, temp1, temp2 = multiply(radix, q, ans2)
+    ans1, res = padArray(ans1, res)
+    ans3 = subtract(radix, ans1, res)
+    ans1 = ans2
+    ans2 = ans3
+  b = toString(removePadding(b))
+  check = toString(['pos', 1])
+  if b == check:
+    answer = ans1
   return answer
 
 
@@ -751,7 +772,10 @@ for exercise in my_exercises['exercises']:
 
     elif operation == 'multiply':
         ### Do multiplication ###
-        ans, n_add, n_mult = multiply(params)
+        x = parseString(params["x"])
+        y = parseString(params["y"])
+        radix = params["radix"]
+        ans, n_add, n_mult = multiply(radix, x, y)
         params['answer'] = toString(ans)
         # add calculated counters to the result
         params['count-mul'] = count_mul
@@ -782,7 +806,10 @@ for exercise in my_exercises['exercises']:
 
     elif operation == 'inverse':
         ### Do inverse algorithm ###
-        params['answer'] = inverse(radix, x, m)
+        ans = (inverse(radix, x, m))
+        if type(ans) == list:
+          ans = toString(ans)
+        params['answer'] = ans
 
     else:
         print("Invalid input: not supported operation in [", radix, "] = ", operation)

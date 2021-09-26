@@ -1,1 +1,1 @@
-{"exercises": [{"inverse": {"radix": 16, "x": "c1b715933d2d1dcb0e23", "m": "157f77a46f4c796bb774", "answer": "8bb87443ec917fa3e87"}}]}
+{"exercises": [{"inverse": {"radix": 10, "x": "154", "m": "392", "answer": "135"}}, {"inverse": {"radix": 16, "x": "b22b5d17e57a41599185", "m": "157f77a46f4c796bb774", "answer": "ERROR - inverse does not exist"}}]}
