@@ -6,8 +6,8 @@ import json
 # set file names
 base_location = './'
 ops_loc = base_location + 'operations.asn'
-exs_loc = base_location + input('Please type your filename:')
-ans_loc = base_location + 'answers'
+exs_loc = base_location + "input.ops"
+ans_loc = base_location + "output.ops"
 
 # global counter for the number of elementary additions/subtractions operations
 count_add = 0
