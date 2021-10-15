@@ -22,7 +22,7 @@ def createTestEx():
   my_file.close()
   return
 
-createTestEx()
+#createTestEx()
 # Read exercise list
 exercise_file = open(exs_loc, 'rb') # open binary file
 file_data = exercise_file.read() # read byte array
@@ -50,7 +50,7 @@ def subPoly(polyX, polyY, m):
 # Returns: The Poly object of poly mod m 
 def modPoly(poly, m):
   ans = [x % m for x in poly]
-  while(ans[0] == 0):
+  while(ans[0] == 0 and len(ans) > 1):
     ans.pop(0)
   return ans
 
@@ -70,6 +70,46 @@ def addPoly(polyX, polyY, m):
       ans.insert(0,polyY[-i])
   return modPoly(ans, m)
 
+def multPoly(polyX, polyY, m):
+    degX = len(polyX)-1
+    degY = len(polyY)-1
+    degOut = degX+degY
+    out = [0 for _ in range(degOut+1)]
+
+    for x in range(len(polyX)):
+        for y in range(len(polyY)):
+            i = (degX-x) + (degY-y)
+            out[degOut-i] += (polyX[x] * polyY[y])
+    out = modPoly(out, m)
+    return out
+
+def polyModPoly(polyX, polyMod, m):
+    degMod = len(polyMod) - 1
+    mod = subPoly([1]+[0 for _ in range(degMod)], polyMod, m)
+
+    polyX = modPoly(polyX, m)
+    degX = len(polyX)-1
+    while degMod <= degX:
+        x1 = multPoly([polyX[0]]+[0 for _ in range(degX-degMod)], mod, m)
+        x0 = polyX[1:]
+        polyX = addPoly(x0,x1,m)
+        degX = len(polyX)-1
+
+    return polyX
+
+def eqPolyMod(polyX, polyY, polyMod, m):
+    if polyMod != [0]:
+        polyX = polyModPoly(polyX, polyMod, m)
+        polyY = polyModPoly(polyY, polyMod, m)
+
+    if len(polyX) != len(polyY):
+        return False
+
+    for i in range(len(polyX)):
+        if polyX[i] != polyY[i]:
+            return False
+    return True
+
 # Loop over exercises and solve
 for exercise in my_exercises['exercises']:
     operation = exercise[0] # get operation type
@@ -80,16 +120,23 @@ for exercise in my_exercises['exercises']:
       # params['answer'] = displayPoly(ans)
       params["answer-poly"] = ans
         
-    if operation == 'subtract-poly':
+    elif operation == 'subtract-poly':
       ans = subPoly(params["f"], params["g"], params["mod"])
       # params['answer'] = displayPoly(ans)
       params["answer-poly"] = ans
-    
-    if operation == 'add-field':
+
+    elif operation == 'multiply-poly':
+        params["answer-poly"] = multPoly(params["f"], params["g"], params["mod"])
+
+    elif operation == 'equals-poly-mod':
+        params["answer"] = eqPolyMod(params["f"], params["g"], params["h"], params["mod"])
+        print(params)
+
+    elif operation == 'add-field':
         params['answer'] = 'X+3'
         params['answer-poly'] = [1,3]
     
-    if operation == 'add-table':
+    elif operation == 'add-table':
         params['answer'] = ['X+1', '2X+1']
         params['answer-poly'] = [[1,1], [2,1]]
 
