@@ -38,21 +38,20 @@ my_answers = {'exercises': []}
 #          m          : Integer < 100
 # Returns: The difference of polyX and polyY mod m in Poly object form
 def subPoly(polyX, polyY, m):
-  polyY1 = polyY[:]
-  for i in range(len(polyY1)):
-    if polyY1[i] != 0:
-      polyY1[i] = -polyY1[i]
+  polyY1 = [-1* polyY[i] for i in range(len(polyY))]
+ 
   return addPoly(polyX, polyY1, m)
 
 # This function reduces some polynomial mod m and removes leading zeroes
 # Input  : poly: some polynomial in the Poly object form with order < 256
-#          m   : Integer < 100
+#          m   : Integer < 100  
 # Returns: The Poly object of poly mod m 
 def modPoly(poly, m):
   ans = [x % m for x in poly]
   while(ans[0] == 0 and len(ans) > 1):
     ans.pop(0)
   return ans
+
 
 # This function adds two polynomials and returns the result mod some integer
 # Input  : polyX, polyY: Two polynomials in the Poly object form with order < 256
@@ -110,6 +109,16 @@ def eqPolyMod(polyX, polyY, polyMod, m):
             return False
     return True
 
+def fieldAdd(polyA, polyB, modPoly, m):
+  return polyModPoly(addPoly(polyA, polyB, m), modPoly, m)
+
+def fieldSub(polyA, polyB, modPoly, m):
+  polyB1 = [-1*polyB[i] for i in range(len(polyB))]
+  return fieldAdd(polyA, polyB1, modPoly, m)
+
+def fieldMult(polyA, polyB, modPoly, m):
+  return polyModPoly(multPoly(polyA, polyB,m), modPoly, m)
+
 # Loop over exercises and solve
 for exercise in my_exercises['exercises']:
     operation = exercise[0] # get operation type
@@ -123,6 +132,7 @@ for exercise in my_exercises['exercises']:
     elif operation == 'subtract-poly':
       ans = subPoly(params["f"], params["g"], params["mod"])
       # params['answer'] = displayPoly(ans)
+      print(ans)
       params["answer-poly"] = ans
 
     elif operation == 'multiply-poly':
@@ -133,8 +143,22 @@ for exercise in my_exercises['exercises']:
         print(params)
 
     elif operation == 'add-field':
-        params['answer'] = 'X+3'
-        params['answer-poly'] = [1,3]
+        ans = fieldAdd(params['a'], params['b'], params['mod-poly'], params['mod'])
+        # params['answer'] = displayPoly(ans)
+        print(ans)
+        params['answer-poly'] = ans
+    
+    elif operation == 'subtract-field':
+        ans = fieldSub(params['a'], params['b'], params['mod-poly'], params['mod'])
+        # params['answer'] = displayPoly(ans)
+        print(ans)
+        params['answer-poly'] = ans
+    
+    elif operation == 'multiply-field':
+        ans = fieldMult(params['a'], params['b'], params['mod-poly'], params['mod'])
+        # params['answer'] = displayPoly(ans)
+        print(ans)
+        params['answer-poly'] = ans
     
     elif operation == 'add-table':
         params['answer'] = ['X+1', '2X+1']
