@@ -92,6 +92,10 @@ def polyModPoly(polyX, polyMod, m):
         x1 = multPoly([polyX[0]]+[0 for _ in range(degX-degMod)], mod, m)
         x0 = polyX[1:]
         polyX = addPoly(x0,x1,m)
+        while len(polyX)-1 == degX:
+            x1 = multPoly([1] + [0 for _ in range(degX - degMod)], mod, m)
+            x0 = polyX[1:]
+            polyX = addPoly(x0, x1, m)
         degX = len(polyX)-1
 
     return polyX
@@ -119,6 +123,10 @@ def fieldSub(polyA, polyB, modPoly, m):
 def fieldMult(polyA, polyB, modPoly, m):
   return polyModPoly(multPoly(polyA, polyB,m), modPoly, m)
 
+
+
+
+
 # Loop over exercises and solve
 for exercise in my_exercises['exercises']:
     operation = exercise[0] # get operation type
@@ -140,7 +148,6 @@ for exercise in my_exercises['exercises']:
 
     elif operation == 'equals-poly-mod':
         params["answer"] = eqPolyMod(params["f"], params["g"], params["h"], params["mod"])
-        print(params)
 
     elif operation == 'add-field':
         ans = fieldAdd(params['a'], params['b'], params['mod-poly'], params['mod'])
@@ -163,6 +170,10 @@ for exercise in my_exercises['exercises']:
     elif operation == 'add-table':
         params['answer'] = ['X+1', '2X+1']
         params['answer-poly'] = [[1,1], [2,1]]
+
+
+    elif operation == "equals-field":
+        params["answer"] = eqPolyMod(params["a"], params["b"], params["mod-poly"], params["mod"])
 
     # Save answer
     my_answers['exercises'].append({operation : params})
