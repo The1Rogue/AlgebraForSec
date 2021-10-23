@@ -239,7 +239,19 @@ def xgcdPoly(a, b, m):
   gcd = addPoly(multPoly(x, pa, m), multPoly(y, pb, m), m)
   return gcd, x, y
 
-  
+def isIrreducible(polyX, m):
+  ans = True
+  t = 1
+  gcd = [1]
+  while gcd == [1]:
+    g = [1] + [0 for _ in range(m**t)]
+    g[-2] = -1
+    gcd = xgcdPoly(polyX, g, m)[0]
+    t += 1
+  if t == (len(polyX)-1) :
+    ans = False
+  return ans
+
 
 
 
@@ -309,6 +321,9 @@ for exercise in my_exercises['exercises']:
         params["answ-a-poly"] = x
         params["answ-b-poly"] = y
         params["answ-d-poly"] = gcd
+    
+    elif operation == "irreducible":
+      ans = isIrreducible(params['f'], params['mod'])
 
 
     # Save answer

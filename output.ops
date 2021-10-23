@@ -1,1 +1,1 @@
-{"exercises": [{"add-field": {"mod": 7, "mod-poly": [2, -2], "a": [1, 1, 1], "b": [2], "answer": "5", "answer-poly": [5.0]}}]}
+{"exercises": [{"irreducible": {"mod": 2, "f": [1, 1, 1], "answer": true}}, {"irreducible": {"mod": 3, "f": [1, 1, 1], "answer": false}}]}
