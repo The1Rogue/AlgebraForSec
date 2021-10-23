@@ -125,6 +125,123 @@ def fieldMult(polyA, polyB, modPoly, m):
 
 
 
+# Get the polynomial's degree
+def degPoly(poly):
+  return len(poly) - 1
+
+# Get the leading coefficient
+def lcPoly(poly):
+  return poly[0]
+
+# Get the inverse of a number
+def inverseNum(num, m):
+  gcd, inv = xgcdNum(num, m)
+  inv = int(inv)
+
+  # Numbers have to be coprime
+  if gcd != 1:
+    return "no inverse"
+
+  # Make the inverse always positive
+  if inv < 0:
+    inv += m
+  
+  return inv
+
+# Extended Euclidian algorithm returning gcd and x in ax + by = gcd
+def xgcdNum(a, b):
+  px, x = 1, 0
+
+  # Stop when remainder hits 0
+  while b > 0:
+    # Calculate quotient
+    q = (a - (a % b)) / b
+
+    # Calculate x in ax + by = gcd
+    x, px = px - q * x, x
+
+    # a <- b, b <- remainder
+    a, b = b, a%b
+  return a, px
+
+# Long division on polynomials
+def longDivPoly(a, b, m):
+  if a == [0] or b == [0]:
+    return "ERROR", "ERROR"
+  
+  q = [0]
+  r = a
+
+  while degPoly(r) >= degPoly(b):
+    degQ = degPoly(r) - degPoly(b)
+    lcQ = lcPoly(r) * inverseNum(lcPoly(b), m)
+    lcQ = lcQ % m
+
+    # Calculate quotient
+    tempQ = [0 for i in range(degQ+1)]
+    tempQ[0] = lcQ
+    q = addPoly(q, tempQ, m)
+
+    # Calculate new remainder
+    r = subPoly(r, multPoly(tempQ, b, m), m)
+
+    if len(r) == 1 and r[0] == 0:
+      break
+  return q, r
+
+
+def copyPoly(poly):
+  return [poly[i] for i in range(len(poly))]
+
+def xgcdPoly(a, b, m):
+  x = [1]
+  v = [1]
+  y = [0]
+  u = [0]
+
+  # GCD is always one element if the other is 0
+  # Norm this GCD to 1
+  if a == [0]:
+    norm = [inverseNum(lcPoly(b))]
+    x = multPoly(x, norm, m)
+    y = multPoly(y, norm, m)
+    b = multPoly(b, norm, m)
+    return b, x, y
+  if b == [0]:
+    x = multPoly(x, norm, m)
+    y = multPoly(y, norm, m)
+    a = multPoly(a, norm, m)
+    return a, x, y
+
+  # Original a and b
+  pa = copyPoly(a)
+  pb = copyPoly(b)
+
+  # While the remainder is not 0, calculate:
+  while not (len(b) == 1 and b[0] == 0):
+    q, r = longDivPoly(a, b, m)
+    a = copyPoly(b)
+    b = copyPoly(r)
+    px = copyPoly(x)
+    py = copyPoly(y)
+    x = copyPoly(u)
+    y = copyPoly(v)
+    u = copyPoly(subPoly(px, multPoly(q, x, m), m))
+    v = copyPoly(subPoly(py, multPoly(q, y, m), m))
+
+  # Calculate the norm factor
+  lcGCD = lcPoly(a)
+  invGCD = inverseNum(lcGCD, m)
+
+  # Normalize x, y, and the gcd
+  x = multPoly(x, [invGCD], m)
+  y = multPoly(y, [invGCD], m)
+  gcd = addPoly(multPoly(x, pa, m), multPoly(y, pb, m), m)
+  return gcd, x, y
+
+  
+
+
 
 
 # Loop over exercises and solve
@@ -174,6 +291,25 @@ for exercise in my_exercises['exercises']:
 
     elif operation == "equals-field":
         params["answer"] = eqPolyMod(params["a"], params["b"], params["mod-poly"], params["mod"])
+
+    elif operation == "long-div-poly":
+        polyQ, polyR = longDivPoly(params["f"], params["g"], params["mod"])
+        strQ = displayPoly(polyQ)
+        strR = displayPoly(polyR)
+        params["answ-q"] = strQ
+        params["answ-r"] = strR
+        params["answ-q-poly"] = polyQ
+        params["answ-r-poly"] = polyR
+
+    elif operation == "euclid-poly":
+        gcd, x, y = xgcdPoly(params["f"], params["g"], params["mod"])
+        params["answ-a"] = displayPoly(x)
+        params["answ-b"] = displayPoly(y)
+        params["answ-d"] = displayPoly(gcd)
+        params["answ-a-poly"] = x
+        params["answ-b-poly"] = y
+        params["answ-d-poly"] = gcd
+
 
     # Save answer
     my_answers['exercises'].append({operation : params})
