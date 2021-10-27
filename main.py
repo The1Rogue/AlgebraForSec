@@ -8,7 +8,8 @@ import json
 
 base_location = './'
 ops_loc = base_location + 'operations.asn'
-exs_loc = base_location + 'input.ops'
+exs_loc = base_location + 'example_output.ops'
+
 
 # Compile specification
 spec = asn.compile_files(ops_loc, codec = "jer")
@@ -127,7 +128,6 @@ def fieldMult(polyA, polyB, modPoly, m):
 
 # Return a field element
 def getElem(mod, polyMod, offset=0):
-  num = offset
   elem = []
   while offset != 0:
     q = offset // mod
@@ -149,7 +149,6 @@ def findPrim(mod, polyMod):
   i = 0
   while i < 10000:
     elem = getElem(mod, polyMod, i)
-    print(elem)
     #if isPrim(elem, mod, polyMod):
     if i > 50:
       return elem
@@ -361,7 +360,6 @@ for exercise in my_exercises['exercises']:
     elif operation == 'add-field':
         ans = fieldAdd(params['a'], params['b'], params['mod-poly'], params['mod'])
         # params['answer'] = displayPoly(ans)
-        print(ans)
         params['answer-poly'] = ans
     
     elif operation == 'subtract-field':
