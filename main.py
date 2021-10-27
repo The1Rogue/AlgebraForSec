@@ -29,7 +29,8 @@ file_data = exercise_file.read() # read byte array
 my_exercises = spec.decode('Exercises', file_data) # decode after specification
 exercise_file.close() # close file
 
-
+def displayPoly(a) :
+  return
 # Create answer JSON
 my_answers = {'exercises': []}
 
@@ -83,23 +84,20 @@ def multPoly(polyX, polyY, m):
     return out
 
 def polyModPoly(polyX, polyMod, m):
-    degMod = len(polyMod) - 1
-    mod = subPoly([1]+[0 for _ in range(degMod)], polyMod, m)
-    invLcm = inverseNum(polyMod[0], m)
+    # degMod = len(polyMod) - 1
+    # mod = subPoly([1]+[0 for _ in range(degMod)], polyMod, m)
+    # invLcm = inverseNum(polyMod[0], m)
 
-    polyX = modPoly(polyX, m)
-    degX = len(polyX)-1
-
-
-    while degMod < degX or (degMod == degX and polyX[0] >= polyMod[0]) :
-        x1 = multPoly([polyX[0] * invLcm]+[0 for _ in range(degX-degMod-1)], mod, m)
-        x0 = polyX[1:]
-        polyX = addPoly(x0,x1,m)
-        degX = len(polyX)-1
+    # polyX = modPoly(polyX, m)
+    # degX = len(polyX)-1
 
 
-
-    return polyX
+    # while degMod < degX or (degMod == degX and polyX[0] >= polyMod[0]) :
+    #     x1 = multPoly([polyX[0] * invLcm]+[0 for _ in range(degX-degMod-1)], mod, m)
+    #     x0 = polyX[1:]
+    #     polyX = addPoly(x0,x1,m)
+    #     degX = len(polyX)-1
+    return longDivPoly(polyX, polyMod, m)[1]
 
 def eqPolyMod(polyX, polyY, polyMod, m):
     if polyMod != [0]:
@@ -356,7 +354,7 @@ for exercise in my_exercises['exercises']:
     elif operation == 'add-field':
         ans = fieldAdd(params['a'], params['b'], params['mod-poly'], params['mod'])
         # params['answer'] = displayPoly(ans)
-        #print(ans)
+        print(ans)
         params['answer-poly'] = ans
     
     elif operation == 'subtract-field':
