@@ -305,7 +305,7 @@ def polyPower(a, pow, polyMod, mod):
 
 def isPrimitive(a, mod, polyMod):
     q = mod**(len(polyMod)-1)
-    with open("primes.json") as f:
+    with open("./primes.json") as f:
         primes = json.loads(f.read())
     f.close()
 
@@ -313,7 +313,7 @@ def isPrimitive(a, mod, polyMod):
         if (q-1)%p == 0 and polyPower(a, (q-1)//p, polyMod, mod) == [1]:
             return False
 
-        if p > q**.5:
+        if p > q//2:
             return True
 
 
