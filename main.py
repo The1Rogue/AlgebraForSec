@@ -124,36 +124,6 @@ def fieldMult(polyA, polyB, modPoly, m):
 
 
 
-# Return a field element
-def getElem(mod, polyMod, offset=0):
-  elem = []
-  while offset != 0:
-    q = offset // mod
-    r = offset - q * mod
-    offset = q
-    elem.append(r)
-
-  if len(elem) == 0:
-    elem = [0]
-  else:
-    elem = list(reversed(elem))
-
-  elem = polyModPoly(elem, polyMod, mod)
-  return elem
-    
-
-# Return a primitive element in the field
-def findPrim(mod, polyMod):
-  i = 0
-  while i < 10000:
-    elem = getElem(mod, polyMod, i)
-    #if isPrim(elem, mod, polyMod):
-    if i > 50:
-      return elem
-    i += 1
-    
-  return "ERROR"
-
 
 
 
@@ -329,6 +299,42 @@ def fieldDiv(a, b, mod, polyMod):
             a = addPoly(a, polyMod, mod)
 
     return polyModPoly(result, polyMod, mod)
+
+
+
+# Return a field element
+def getElem(mod, polyMod, offset=0):
+  num = offset
+  elem = []
+  while offset != 0:
+    q = offset // mod
+    r = offset - q * mod
+    offset = q
+    elem.append(r)
+
+  if len(elem) == 0:
+    elem = [0]
+  else:
+    elem = list(reversed(elem))
+
+  elem = polyModPoly(elem, polyMod, mod)
+  return elem
+
+# Return a primitive element in the field
+def findPrim(mod, polyMod):
+  i = 1
+  while i < 10000:
+    elem = getElem(mod, polyMod, i)
+
+    if not isinstance(elem, str):
+      if isPrimitive(elem, mod, polyMod):
+        return elem
+    
+    i += 1
+    
+  return "ERROR"
+
+
 
 
 
