@@ -377,8 +377,8 @@ for exercise in my_exercises['exercises']:
         params["answer"] = eqPolyMod(params["f"], params["g"], params["h"], params["mod"])
     elif operation == 'irreducible':
       ans = isIrreducible(params['f'], params['mod'])
-      print(ans)
-      
+      params['answer'] = ans
+ 
     elif operation == 'add-field':
         ans = fieldAdd(params['a'], params['b'], params['mod-poly'], params['mod'])
         # params['answer'] = displayPoly(ans)

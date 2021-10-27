@@ -1,1 +1,1 @@
-{"exercises": [{"irreducible": {"mod": 2, "f": [1, 1, 1], "answer": true}}, {"irreducible": {"mod": 3, "f": [1, 1, 1], "answer": false}}, {"irreducible": {"mod": 7, "f": [1, 0, 6], "answer": true}}, {"find-prim": {"mod": 7, "mod-poly": [1, 0, 1], "answer": null, "answer-poly": [1, 2]}}]}
+{"exercises": [{"irreducible": {"mod": 2, "f": [1, 1, 1], "answer": true}}, {"irreducible": {"mod": 3, "f": [1, 1, 1], "answer": false}}, {"irreducible": {"mod": 7, "f": [1, 0, 6], "answer": false}}, {"find-prim": {"mod": 7, "mod-poly": [1, 0, 1], "answer": null, "answer-poly": [1, 2]}}]}
