@@ -322,6 +322,9 @@ def getElem(mod, polyMod, offset=0):
 
 # Return a primitive element in the field
 def findPrim(mod, polyMod):
+  if not isIrreducible(polyMod, mod):
+    return "ERROR"
+  
   i = 1
   while i < 10000:
     elem = getElem(mod, polyMod, i)
