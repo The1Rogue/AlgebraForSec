@@ -334,6 +334,18 @@ def findPrim(mod, polyMod):
     
   return "ERROR"
 
+def isIrreducible(polyX, m):
+  ans = True
+  t = 1
+  gcd = [1]
+  while gcd == [1]:
+    g = [1] + [0 for _ in range(m**t)]
+    g[-2] = -1
+    gcd = xgcdPoly(polyX, g, m)[0]
+    t += 1
+  if t == (len(polyX)-1) :
+    ans = False
+  return ans
 
 
 
@@ -360,7 +372,10 @@ for exercise in my_exercises['exercises']:
 
     elif operation == 'equals-poly-mod':
         params["answer"] = eqPolyMod(params["f"], params["g"], params["h"], params["mod"])
-
+    elif operation == 'irreducible':
+      ans = isIrreducible(params['f'], params['mod'])
+      print(ans)
+      
     elif operation == 'add-field':
         ans = fieldAdd(params['a'], params['b'], params['mod-poly'], params['mod'])
         # params['answer'] = displayPoly(ans)

@@ -1,22 +1,48 @@
 {
   "exercises": [{
-      "add-field": {
-        "mod": 7,
-        "mod-poly": [
-          2,
-          -2
-        ],
-        "a": [
+      "irreducible": {
+        "mod": 2,
+        "f": [
           1,
           1,
           1
         ],
-        "b": [
-          2
+        "answer": true
+      }
+    },
+    {
+      "irreducible": {
+        "mod": 3,
+        "f": [
+          1,
+          1,
+          1
         ],
-        "answer": "5",
+        "answer": false
+      }
+    },{
+      "irreducible": {
+        "mod": 7,
+        "f": [
+          1,
+          0,
+          6
+        ],
+        "answer": true
+      }
+    },
+    {
+      "find-prim": {
+        "mod": 7,
+        "mod-poly": [
+          1,
+          0,
+          1
+        ],
+        "answer": "2X+6",
         "answer-poly": [
-          5
+          2,
+          6
         ]
       }
     }]
