@@ -85,17 +85,14 @@ def multPoly(polyX, polyY, m):
 def polyModPoly(polyX, polyMod, m):
     degMod = len(polyMod) - 1
     mod = subPoly([1]+[0 for _ in range(degMod)], polyMod, m)
+    invLcm =  inverseNum(polyMod, mod)
 
     polyX = modPoly(polyX, m)
     degX = len(polyX)-1
     while degMod <= degX:
-        x1 = multPoly([polyX[0]]+[0 for _ in range(degX-degMod)], mod, m)
+        x1 = multPoly([polyX[0] * invLcm]+[0 for _ in range(degX-degMod)], mod, m)
         x0 = polyX[1:]
         polyX = addPoly(x0,x1,m)
-        while len(polyX)-1 == degX:
-            x1 = multPoly([1] + [0 for _ in range(degX - degMod)], mod, m)
-            x0 = polyX[1:]
-            polyX = addPoly(x0, x1, m)
         degX = len(polyX)-1
 
     return polyX
