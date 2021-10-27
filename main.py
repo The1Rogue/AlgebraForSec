@@ -286,7 +286,46 @@ def inverseField(elem, mod, polyMod):
   if len(gcd) == 1 and gcd[0] == 1:
     return x
   return "ERROR"
-  
+
+
+def polyPower(a, pow, polyMod, mod):
+    result = [1]
+    while pow > 0:
+        if pow%2 == 1:
+            result = multPoly(result, a, mod)
+            pow -= 1
+        pow //= 2
+        a = multPoly(a, a, mod)
+
+    return polyModPoly(result, polyMod, mod)
+
+
+def isPrimitive(a, mod, polyMod):
+    q = mod**(len(polyMod)-1)
+    with open("primes.json") as f:
+        primes = json.loads(f.read())
+    f.close()
+
+    for p in primes:
+        if (q-1)%p == 0 and polyPower(a, (q-1)//p, polyMod, mod) == [1]:
+            return False
+
+        if p > q**.5:
+            return True
+
+
+def fieldDiv(a, b, mod, polyMod):
+    result = [0]
+    invLcb = inverseNum(b[0], mod)
+    while a != [0]:
+        if len(b) <= len(a):
+            tmp = [a[0] * invLcb] + [0 for _ in range(len(a) - len(b))]
+            result = addPoly( tmp , result, mod)
+            a = subPoly(a, multPoly(tmp, b, mod), mod)
+        else:
+            a = addPoly(a, polyMod, mod)
+
+    return polyModPoly(result, polyMod, mod)
 
 
 
@@ -365,6 +404,9 @@ for exercise in my_exercises['exercises']:
         else:
           params["answer"] = displayPoly(elem)
           params["answer-poly"] = elem
+
+    elif operation == "primitive":
+        params["answer"] = isPrimitive(params["a"], params["mod"], params["mod-poly"])
     
     elif operation == "inverse-field":
         elem = inverseField(params["a"], params["mod"], params["mod-poly"])
@@ -374,7 +416,16 @@ for exercise in my_exercises['exercises']:
         else:
           params["answer"] = displayPoly(elem)
           params["answer-poly"] = elem
-        
+
+    elif operation == "division-field":
+        if params["b"] == [0]:
+            params["answer"] = "Error"
+            params["answer-poly"] = ""
+
+        else:
+            out = fieldDiv(params["a"], params["b"], params["mod"], params["mod-poly"])
+            params["answer"] = ""
+            params["answer-poly"] = out
 
     # Save answer
     my_answers['exercises'].append({operation : params})
