@@ -237,12 +237,19 @@ def xgcdPoly(a, b, m, normalize=True):
   # GCD is always one element if the other is 0
   # Norm this GCD to 1
   if a == [0]:
-    norm = [inverseNum(lcPoly(b))]
+    norm = [inverseNum(lcPoly(a), m)]
+    if isinstance(norm[0], str):
+      return "ERROR", "", ""
+    
     x = multPoly(x, norm, m)
     y = multPoly(y, norm, m)
     b = multPoly(b, norm, m)
     return b, x, y
   if b == [0]:
+    norm = [inverseNum(lcPoly(b), m)]
+    if isinstance(norm[0], str):
+      return "ERROR", "", ""
+    
     x = multPoly(x, norm, m)
     y = multPoly(y, norm, m)
     a = multPoly(a, norm, m)
@@ -276,7 +283,7 @@ def xgcdPoly(a, b, m, normalize=True):
   x = multPoly(x, [invGCD], m)
   y = multPoly(y, [invGCD], m)
   gcd = addPoly(multPoly(x, pa, m), multPoly(y, pb, m), m)
-  return gcd, x, y, isOne
+  return gcd, x, y
 
 
 # Get inverse element in a field
@@ -388,12 +395,13 @@ for exercise in my_exercises['exercises']:
 
     elif operation == "euclid-poly":
         gcd, x, y = xgcdPoly(params["f"], params["g"], params["mod"])
-        params["answ-a"] = displayPoly(x)
-        params["answ-b"] = displayPoly(y)
-        params["answ-d"] = displayPoly(gcd)
-        params["answ-a-poly"] = x
-        params["answ-b-poly"] = y
-        params["answ-d-poly"] = gcd
+        if not isinstance(gcd, str):
+            params["answ-a"] = displayPoly(x)
+            params["answ-b"] = displayPoly(y)
+            params["answ-d"] = displayPoly(gcd)
+            params["answ-a-poly"] = x
+            params["answ-b-poly"] = y
+            params["answ-d-poly"] = gcd
 
     elif operation == "find-prim":
         elem = findPrim(params["mod"], params["mod-poly"])
