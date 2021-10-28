@@ -794,7 +794,7 @@ def xgcdPoly(a, b, m, normalize=True):
   # GCD is always one element if the other is 0
   # Norm this GCD to 1
   if a == [0]:
-    norm = [inverseNum(lcPoly(a), m)]
+    norm = [inverseNum(lcPoly(b), m)]
     if isinstance(norm[0], str):
       return "ERROR", "", ""
 
@@ -803,7 +803,7 @@ def xgcdPoly(a, b, m, normalize=True):
     b = multPoly(b, norm, m)
     return b, x, y
   if b == [0]:
-    norm = [inverseNum(lcPoly(b), m)]
+    norm = [inverseNum(lcPoly(a), m)]
     if isinstance(norm[0], str):
       return "ERROR", "", ""
 
@@ -842,9 +842,12 @@ def xgcdPoly(a, b, m, normalize=True):
   gcd = addPoly(multPoly(x, pa, m), multPoly(y, pb, m), m)
   return gcd, x, y
 
-
+#Takes a polynomial and checks if it is irreducible over a mod
+#Input : polyX: polynomial in Poly object form
+#            m: Integer mod
+#Returns: True iff polyX is irreducible (mod m)
 def isIrreducible(polyX, m):
-  ans = True
+  ans = False
   t = 1
   gcd = [1]
   while gcd == [1]:
@@ -852,8 +855,8 @@ def isIrreducible(polyX, m):
     g[-2] = -1
     gcd = xgcdPoly(polyX, g, m)[0]
     t += 1
-  if t == (len(polyX)-1) :
-    ans = False
+  if t == (len(polyX)) :
+    ans = True
   return ans
 
 
@@ -864,8 +867,9 @@ def findIrred(mod, deg):
     out = ""
     count_constr = 0           # counts how many polynomials were constructed
     irreducible_found = False  # shows when constructed polynomial is ireducible
+    maxLoops = 50              # Maximum amount of random irreducibles generated
 
-    while irreducible_found == False and count_constr <= 10:
+    while irreducible_found == False and count_constr <= maxLoops:
         # count constructed polynomial
         count_constr += 1
 
@@ -878,19 +882,17 @@ def findIrred(mod, deg):
                 else:          coeff = random.randint(0, mod-1)
             constr_int.append(coeff)
 
-        constr_str = coeff_to_str(constr_int);
+        constr_str = coeff_to_str(constr_int)
 
         # check if constructed polynomial is irreducible
         irreducible_found = isIrreducible(constr_int, mod)
         if irreducible_found == True:
-            print("Note: irreducible found, count_constr: " + str(count_constr))
             out = coeffToPolynomial(constr_int)
         else:
             # safety break
-            if count_constr > 10:
+            if count_constr > maxLoops:
                 # don't try to find more irreducible polynomials
                 out = "Break searching irreducible: " + constr_str + ", after " + str(count_constr) + " attempts"
-                print(out)
 
     # prepare polynomial string from list of integers polynomial coefficients
     return out, constr_int
@@ -1222,6 +1224,11 @@ for exercise in my_exercises['exercises']:
         params['answ-q-poly'] = []
     if 'answ-r-poly' in params:
         params['answ-r-poly'] = []
+    if "mod-poly" in params:
+      if(not isIrreducible(mod_poly, mod)):
+        params['answer'] = "ERROR"
+        my_answers['exercises'].append({operation : params})
+        continue
 
     if operation == 'display-poly':
         params['answer'], params['answer-poly'] = displayPoly(f, mod)
